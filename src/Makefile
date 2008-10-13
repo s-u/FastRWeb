@@ -1,9 +1,12 @@
+INST=../inst
+CGIBIN=$(INST)/cgi-bin
+
 all:
 	@echo 'compiling Rcgi'
 	@(cd Rcgi && $(MAKE))
-	rm -rf inst/Rcgi
-	cp -r Rcgi inst/
-	mkdir inst/cgi-bin
-	@(if test -e Rcgi/Rcgi; then cp Rcgi/Rcgi inst/cgi-bin/; fi)
-	@(if test -e Rcgi/Rcgi.exe; then cp Rcgi/Rcgi.exe inst/cgi-bin/; fi)
-	touch null.so null.dll
+	rm -rf $(INST)/Rcgi
+	cp -r Rcgi $(INST)
+	mkdir $(CGIBIN)
+	@(if test -e Rcgi/Rcgi; then cp Rcgi/Rcgi $(CGIBIN)/; fi)
+	@(if test -e Rcgi/Rcgi.exe; then cp Rcgi/Rcgi.exe $(CGIBIN)/; fi)
+	touch null.so null.dll # to make R CMD SHLIB happy
