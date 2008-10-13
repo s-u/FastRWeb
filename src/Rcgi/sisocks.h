@@ -20,9 +20,9 @@
 
 #if defined SOCK_ERRORS || defined USE_SNPRINTF
 #include <stdio.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
-#endif
 
 #ifdef unix
 #include <sys/types.h>
