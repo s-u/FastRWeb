@@ -6,12 +6,12 @@ SRC = $(wildcard *.cc)
 OBJ = $(SRC:%.cc=%.o)
 DST = Rcgi
 
-LIBS+=@LIBS@
-CPPFLAGS=-DHAVE_CONFIG_H -I.
+LIBS=@LIBS@ $(PKG_LIBS)
+CPPFLAGS=-DHAVE_CONFIG_H -I. $(PKG_CPPFLAGS)
 
-all: $(DST) $(OBJ)
+all: $(DST)
 
-%: Rconnection.o %.o
+Rcgi: Rconnection.o Rcgi.o
 	$(CXX) $^ -o $@ $(LIBS)
 
 debug:
