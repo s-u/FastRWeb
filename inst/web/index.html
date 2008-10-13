@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>FastRWeb</title>
+<script type="text/javascript">
+window.onload = function() {
+  reqPrefix = "/cgi-bin/R/"; // modify if your setup is different - must contain a trailing slash!
+  window.ajax = null;
+  window.qajax = null;
+  window.isSafari = false;
+  window.isMSIE = false;
+  if (navigator.vendor && navigator.vendor.indexOf("Apple")>=0) window.isSafari=true;
+  if (navigator.userAgent && navigator.userAgent.indexOf("MSIE")>=0) window.isMSIE=true;
+  if (window.XMLHttpRequest) {
+    window.ajax = new XMLHttpRequest();
+    window.qajax = new XMLHttpRequest();
+  } else if (window.ActiveXObject) {
+    window.ajax = new ActiveXObject("Microsoft.XMLHTTP");
+    window.qajax = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  if (window.isMSIE) {
+    var wd = document.getElementById("iewarning");
+    if (wd) wd.style.display = "inline";
+  }
+  req('main', 'mainContent'); // load "main" into the main content div
+}
+function req(what, where, params, flags) {
+  var ap=".html";
+  var ajax = window.ajax;
+  if (where == null) where = "payload";
+  var showLoading = true;
+  if (flags && flags.indexOf("quiet") >= 0) showLoading = false;
+  // default parameters that will be copied from window namespace
+  // FIXME: we should implement session variables array
+  var defpars="where="+where;
+  if (window.uuid) defpars+="&uuid="+window.uuid;
+  if (window.stbsub) defpars+="&stbsub="+window.stbsub;
+  if (window.datemin) defpars+="&datemin="+window.datemin;
+  if (window.datemax) defpars+="&datemax="+window.datemax;
+  if (window.pid) defpars+="&pid="+window.pid;
+  if (window.sid) defpars+="&sid="+window.sid;
+  if (params != null) ap="?"+defpars+"&"+params; else ap="?"+defpars;
+  ajax.open("GET",reqPrefix+what+ap);
+  if (showLoading) document.getElementById(where).innerHTML = "Loading...";
+  ajax.onreadystatechange = function() {
+  if (ajax.readyState == 4) {
+    if (ajax.status == 200) {
+      gqoff(); // remove global query
+      var te = document.getElementById(where);
+      if (te) {
+        te.innerHTML = ajax.responseText;
+// the next chunk is necessary to move script objects from the loaded code
+// into the 'head' section such that they are acutally run
+// we are also smart enough to replace existing scripts if they have an id
+var scripts = te.getElementsByTagName('SCRIPT'); 
+for (i=0; i<scripts.length; i++){
+try {
+ var script = scripts[i];
+ var headTag = document.getElementsByTagName('head')[0];
+ var ps = null;
+ var hsid = script.id+"HeadJS";
+ if (script.id) for (j=0; j<headTag.childNodes.length; j++) { if (headTag.childNodes[j].id==hsid) { ps=headTag.childNodes[j]; break; } }
+ // ugly - on Safari we can use cloneNode, on Firefox we can't ...
+ var sc;
+ if (isSafari)
+   sc = script.cloneNode(true);
+ else { // FireFox doesn't like cloneNode, so we create a new Node
+   sc = document.createElement("script");
+   sc.type = "text/javascript";
+   sc.innerHTML = script.innerHTML;
+ }
+ sc.id = hsid;
+ if (ps)
+   headTag.replaceChild(sc,ps);
+ else
+   headTag.appendChild(sc);
+} catch (e) { te.innerHTML+="Exception loading scripts:"+e; }
+}
+      }
+    } else {
+      document.getElementById(where).innerHTML = "<b>Sorry, cannot load this page</b> ("+ajax.status+" "+window.ajax.statusText+")";
+    }
+  }
+  }
+  ajax.send(null);
+  return false;
+}
+
+function urienc(what) {
+  var str = escape(what); // escape converts ' ' to '%20' (good, no harm done) but keeps '+' unescaped
+  return str.replace('+', '%2B');
+}
+
+function gqon(e,txt,req) {
+  if (!e) var e = window.event;
+  var query=document.getElementById("gquery");
+  if (query) {
+    if (req) {
+  var qajax = window.qajax;
+  var ast = qajax.readyState;
+  if (ast > 0 && ast < 4) qajax.abort();
+  qajax.open("GET", reqPrefix+req);
+  qajax.onreadystatechange = function() {
+  if (qajax.readyState == 4) {
+    if (qajax.status == 200) {
+      var query = document.getElementById("gquery");
+      if (query) {
+        query.innerHTML = qajax.responseText;
+        query.style.display="inline";
+      }
+    }
+  }
+  };
+  query.style.top=e.clientY+document.body.scrollTop-10;
+  query.style.left=e.clientX+document.body.scrollLeft+10;
+  qajax.send(null);
+  
+    } else {
+     query.style.top=e.clientY+document.body.scrollTop-10;
+     query.style.left=e.clientX+document.body.scrollLeft+10;
+     query.innerHTML=txt;
+     query.style.display="inline";
+    }
+  }
+}
+
+function gqoff() {
+  var ast = qajax.readyState;
+  if (ast > 0 && ast < 4) qajax.abort();
+ var query=document.getElementById("gquery");
+ query.style.display="none";
+}
+
+function gqmov(e) {
+ if (!e) var e = window.event;
+ var query=document.getElementById("gquery");
+ if (query && query.style.display=="inline") {
+   query.style.top=e.clientY+document.body.scrollTop-10;
+   query.style.left=e.clientX+document.body.scrollLeft+10;  
+ }
+}
+
+function togviz(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    if (el.style.display=='none')
+      el.style.display='inline';
+    else
+      el.style.display='none';
+  }
+  true;
+}
+</script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel='stylesheet' href='/main.css' type='text/css'>
+</head>
+<body>
+<div id='mainContent'>
+</div>
+<div name=gquery id=gquery style='position:absolute; width:200px; height:20px; top: 0; left: 0; display:none'></div>
+</body>
+</html>

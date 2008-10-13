@@ -1,0 +1,2 @@
+This directory contain examples of R script to run in FastRWeb.
+They are not part of the FastRWeb itself, so you can (and should) remove them for a production system.
