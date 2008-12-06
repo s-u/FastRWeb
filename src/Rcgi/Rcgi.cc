@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
     }
     char *pii = strdup(pi);
     { char *c=pii; while (*c) { if (c[0]=='.' && c[1]=='.') *c='_'; c++;  } }
-snprintf(sfb, 4096, "{setwd('%s/tmp'); cmd<-'html'; ct<-'text/html'; hdr<-''; qs<-'%s'; pars<-list(); lapply(strsplit(strsplit(qs,\"&\")[[1]],\"=\"),function(x) pars[[x[1]]]<<-x[2]); if(exists('init') && is.function(init)) init(); as.character(try({source('%s/web.R/%s.R'); do.call(run, pars) },silent=TRUE))}\n", root, sqs, root, pii);
+snprintf(sfb, 4096, "{setwd('%s/tmp'); library(FastRWeb); .out<-''; cmd<-'html'; ct<-'text/html'; hdr<-''; qs<-'%s'; pars<-list(); lapply(strsplit(strsplit(qs,\"&\")[[1]],\"=\"),function(x) pars[[x[1]]]<<-x[2]); if(exists('init') && is.function(init)) init(); as.character(try({source('%s/web.R/%s.R'); as.WebResult(do.call(run, pars)) },silent=TRUE))}\n", root, sqs, root, pii);
     int res = 0;
     Rstrings *x = (Rstrings*) rc->eval(sfb, &res);
     

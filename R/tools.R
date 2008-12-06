@@ -1,18 +1,20 @@
-out <- function(..., sep='', eol='\n') {
-  .out <<- c(.out, paste(..., sep=sep, collapse=eol))
-}
+out <- function(..., sep='', eol='\n')
+    .out <<- c(.out, paste(..., sep=sep, collapse=eol))
 
 otable <- function(..., tab='', tr='', cs='</td><td>') {
   a=list(...)
+  if (length(a)==1 && is.list(a[[1]])) a=a[[1]]
   ml=max(unlist(lapply(a,length)))
   m=matrix(unlist(lapply(a,function(x) rep(as.character(x),length.out=ml))),ml)
   tout <- unlist(lapply(1:ml, function(x) paste("<tr",tr,"><td>",paste(m[x,],collapse=cs),"</td></tr>",sep='')))
   .out <<- c(.out, paste("<table ",tab,">\n",sep=''), tout, '</table>')
 }
 
-ohead <- function(..., level=3) .out <<- c(.out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
+ohead <- function(..., level=3)
+  .out <<- c(.out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
 
-oprint <- function(..., sep='\n') .out <<- c(.out, paste("<pre>",paste(capture.output(...),collapse=sep),"</pre>",sep=''))
+oprint <- function(..., sep='\n')
+  .out <<- c(.out, paste("<pre>",paste(capture.output(print(...)),collapse=sep),"</pre>",sep=''))
 
 arequest <- function(txt, target, where, ..., attr='') {
      if (length(list(...)))
@@ -26,7 +28,20 @@ arequest <- function(txt, target, where, ..., attr='') {
 #initialize output to an empty string
 .out <<- character(0)
 
-done <- function(..., cmd="html", type="text/html; charset=utf-8") return(c(cmd,ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'),paste(.out,collapse='\n')),type))
+done <- function(..., cmd="html", type="text/html; charset=utf-8")
+  structure(c(cmd,ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'),paste(.out,collapse='\n')),type), class="WebResult")
+
+#alink <- function(text, href, ...) {
+#  if (missing(href)) href <- 'javascript:void(0);'
+#  a <- list(...)
+#}
+
+#arequest <- function(what, where, ...) {
+#  a <- list(...)
+#  xp <- ''
+#  if (length(a)) paste(names(a),as.character(a),sep='=',collapse='&'
+#}
+
 
 ## general tools
 
