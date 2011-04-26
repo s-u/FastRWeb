@@ -23,13 +23,24 @@ arequest <- function(txt, target, where, ..., attr='') {
           paste("<a href='javascript:void(0);' onclick=\"javascript:req('",target,"','",where,"');\"",attr,">",txt,"</a>",sep='')
 }
 
+add.header <- function(txt) {
+    if (!exists(".headers"))
+          .headers <<- as.character(txt)
+      else
+          .headers <<- c(.headers, as.character(txt))
+      .headers
+}
+
 #link <- function(url,target,par,...) paste("<a href=# onclick=\"req('",where,"','",target,"','",par,"');\">",...,"</a>",sep='',co
 
-#initialize output to an empty string
+# initialize output to an empty string
 .out <<- character(0)
 
+# same for headers
+.headers <<- character(0)
+
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
-  structure(c(cmd,ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'),paste(.out,collapse='\n')),type), class="WebResult")
+  WebResult(cmd, ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(.out,collapse='\n')), type), class="WebResult")
 
 # create query string from 'pars' and merge in any additional parameters passed
 .npar <- function(...) {

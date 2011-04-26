@@ -3,7 +3,7 @@ as.WebResult <- function(x, ...) UseMethod("as.WebResult")
 as.WebResult.WebResult <- function(x, ...) x
 
 as.WebResult.default <- function(x, ...)
-  structure(c("html", paste(as.character(x),collapse='\n'), "text/html; charset=utf-8"), class="WebResult")
+  WebResult("html", paste(as.character(x), collapse='\n'))
 
-WebResult <- function(cmd="html", payload="", content.type="text/html; charset=utf-8", headers="")
-  structure(c(cmd, paste(as.character(payload), collapse="\n"), content.type, paste(as.character(headers),collapse="\r\n")), class="WebResult")
+WebResult <- function(cmd="html", payload="", content.type="text/html; charset=utf-8", headers=character(0)) {
+  structure(c(cmd, paste(as.character(payload), collapse="\n"), content.type, paste(c(.headers, as.character(headers)),collapse="\r\n")), class="WebResult")
