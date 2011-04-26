@@ -36,8 +36,8 @@ add.header <- function(txt) {
 # initialize output to an empty string
 .out <<- character(0)
 
-# same for headers
-.headers <<- character(0)
+# same for headers except that they are local
+.headers <- character(0)
 
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
   WebResult(cmd, ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(.out,collapse='\n')), type)
