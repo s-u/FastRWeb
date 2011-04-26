@@ -4,7 +4,7 @@
 ## for global processing, for example, to handle cookies.
 
 getCookies <- function() {
-    raw.cookies <- Sys.getenv("HTTP_COOKIE")
+    ## raw.cookies is a variable populated by the FastRWeb engine
     ckv <- gsub("^ +","",strsplit(raw.cookies,";",fixed=TRUE)[[1]])
     cookies <<- if (length(ckv)) {
             keys = unlist(lapply(strsplit(ckv,"="),function(x) x[1]))
