@@ -40,7 +40,7 @@ add.header <- function(txt) {
 .headers <<- character(0)
 
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
-  WebResult(cmd, ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(.out,collapse='\n')), type), class="WebResult")
+  WebResult(cmd, ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(.out,collapse='\n')), type)
 
 # create query string from 'pars' and merge in any additional parameters passed
 .npar <- function(...) {
