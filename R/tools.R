@@ -31,6 +31,17 @@ arequest <- function(txt, target, where, ..., attr='') {
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
   structure(c(cmd,ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'),paste(.out,collapse='\n')),type), class="WebResult")
 
+# create query string from 'pars' and merge in any additional parameters passed
+.npar <- function(...) {
+     q <- if (exists("pars") && is.list(pars)) pars else list()
+     l <- list(...)
+     for (i in names(l)) q[[i]] <- if (l[[i]] == "") NULL else l[[i]]
+     if (!length(q)) return("")
+     ml <- max(unlist(lapply(q,length)))
+     for (i in names(q)) q[[i]] <- rep(paste(i,"=",as.character(q[[i]]),sep=''),length.out=ml)
+     unlist(lapply(1:ml, function(x) paste(unlist(lapply(q, function(a) a[[x]])),sep='',collapse='&')))
+}
+
 #alink <- function(text, href, ...) {
 #  if (missing(href)) href <- 'javascript:void(0);'
 #  a <- list(...)
