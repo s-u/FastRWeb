@@ -1,0 +1,26 @@
+This directory is entriely optional but it contains example Rserve
+configuration to run FastRWeb on a unix server
+
+contents:
+
+rserve.R     - R script that will be sourced by Rserve and can be used
+               to pre-load packages, functiond and data in the Rserve
+	       server instance so it is immediately available
+	       to all client connections. See comments in the file
+	       for details.
+
+rserve.conf  - Rserve configuration file which enables the same socket
+	       used by the Rcgi binary by default and causes rserve.R
+	       to be sourced.
+	       Note that this is a sample configurtaion file with very
+	       relaxed permisson handling (any user on the machine can
+	       connect) so for production system please read Rserve
+	       documentation on how to restrict permissions and setup
+	       a safe environment. We don't do this is the example
+	       script because each unix distribution has different
+	       system user names and setup.
+
+start        - shell script that can be used to start the Rserve
+	       instance serving this FastRWeb installation. It
+	       simply uses the configuration described above.
+	       To run in debug mode, add "-d" as the first parameter.

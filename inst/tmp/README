@@ -1,0 +1,4 @@
+this is a directory used for temporary files
+you can have automated scripts purge it if your scripts
+are creating files that are not cleaned up (the default
+tmpfile machnism in FastRWeb does clean up files, though)

@@ -1,0 +1,21 @@
+#!/bin/sh
+# script to start Rserve with the configuration FastRWeb/code/rserve.conf
+# add -d if you want to start teh debugging version
+
+ROOT=/var/FastRWeb
+export ROOT
+
+RBIN=R
+
+if [ "$1" = -h ]; then
+  echo ''
+  echo " Usage: $0 [-d]"
+  echo ''
+  exit 0
+fi
+if [ "$1" = -d ]; then
+  PX=.dbg
+fi
+
+echo $RBIN CMD ${PRE}Rserve$PX --RS-conf $ROOT/code/rserve.conf --vanilla --no-save
+$RBIN CMD ${PRE}Rserve$PX --RS-conf $ROOT/code/rserve.conf --vanilla --no-save
