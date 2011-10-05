@@ -28,11 +28,16 @@
 #endif
 const char *root = PROJECT_ROOT;
 
-/* socket name - must match the name used when starting Rserve */
+/* socket name - must match the name used when starting Rserve (not used on Windows) */
 #ifndef RSERVE_SOCK
 #define RSERVE_SOCK "/var/FastRWeb/socket" 
 #endif
 const char *sock = RSERVE_SOCK;
+
+/* cookie to log in the log files */
+#ifndef LOG_COOKIE
+#define LOG_COOKIE "userID="
+#endif
 
 /* -- end of user configuirable part -- */
 
@@ -91,7 +96,7 @@ struct timeval startT, stopT;
 
 /* log access to the log/cgi.log file - if possible */
 static void wlog(const char *cmd, const char *info) {
-  char wfn[512], idb[16];
+    char wfn[512], idb[16], *cookie_end = 0;
   snprintf(wfn, 512, "%s/logs/cgi.log", root);
   gettimeofday(&stopT, 0);
   double t1 = (double) startT.tv_usec; t1 *= 0.000001; t1 += (double) startT.tv_sec;
@@ -101,12 +106,14 @@ static void wlog(const char *cmd, const char *info) {
   if (!f) return;
   /* you can tag your logs with some cookie content - as an exmaple we use userID cookie */
   char *s = getenv("HTTP_COOKIE");
-  if (s) s = strstr(s, "userID=");
   if (s) {
-    int i = 0;
-    while (i < 8 && ((s[i] >= '0' && s[i] <= '9') || (s[i] >= 'a' && s[i] <= 'z'))) { idb[i] = s[i]; i++; }
-    idb[0] = 0;
-  }
+      s = strstr(s, LOG_COOKIE);
+      if (s) {
+	  cookie_end = s;
+	  while (*cookie_end && *cookie_end != ';') cookie_end++;
+	  if (*cookie_end) *cookie_end = 0; else cookie_end = 0;
+      }
+  } else s = "";
   if (!s) s="";
   fprintf(f,"%u\t%.2f\t%s\t%s\t%s\t%s\t%s\t%s\n",
 	  (unsigned int) time(0),
@@ -117,6 +124,7 @@ static void wlog(const char *cmd, const char *info) {
 	  cmd,
 	  info,
 	  getenv("HTTP_USER_AGENT"));
+  if (cookie_end) *cookie_end = ';'; /* restore cookie trailing char if it was not the last cookie */
   fclose(f);
 }
 
@@ -130,9 +138,12 @@ int main(int argc, char **argv) {
     }
     initsocks(); // this is needed for Win32 - it does nothing on unix
 
+#ifdef Win32 // no unix sockets, use local TCP/IP
+    Rconnection *rc = new Rconnection();
+#else
     // use unix sockets
     Rconnection *rc = new Rconnection(sock, -1);
-    
+#endif
 	// try to connect
     int i=rc->connect();
     if (i) { // show error page on failure

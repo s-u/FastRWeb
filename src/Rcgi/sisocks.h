@@ -86,7 +86,7 @@ int snprintf(char *buf, int len, char *fmt, ...)
 
 #ifdef windows
 
-int initsocks(void)
+static int initsocks(void)
 {
   WSADATA dt;
   /* initialize WinSock 1.1 */

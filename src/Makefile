@@ -3,6 +3,7 @@ CGIBIN=$(INST)/cgi-bin
 
 all:
 	@echo 'compiling Rcgi'
+	@if test ! -e Rcgi/Makefile; then cp Rcgi/Makefile.win Rcgi/Makefile; echo ' - using Windows setup'; fi
 	@(cd Rcgi && $(MAKE))
 	rm -rf $(INST)/Rcgi
 	cp -r Rcgi $(INST)

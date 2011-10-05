@@ -4,7 +4,7 @@
 
 SRC = $(wildcard *.cc)
 OBJ = $(SRC:%.cc=%.o)
-DST = Rcgi
+DST = Rcgi.exe
 
 CXXFLAGS=-I../include -I../include/Win32 -I.. -I. -DWin32
 LIBS=-lwsock32
@@ -12,7 +12,7 @@ linkRL=
 
 all: $(DST)
 
-Rcgi: Rconnection.o Rcgi.o
+Rcgi.exe: Rconnection.o Rcgi.o
 	$(CXX) $^ -o $@ $(LIBS)
 
 debug:
