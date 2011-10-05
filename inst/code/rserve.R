@@ -30,8 +30,11 @@ for (pkg in pkgs) cat(pkg, ": ",require(pkg, quietly=TRUE, character.only=TRUE),
 if (exists("CairoFonts")) CairoFonts("Arial:style=Regular","Arial:style=Bold","Arial:style=Italic","Helvetica","Symbol")
 
 ## Load any data you want
-cat("Loading data...\n")
-load(paste(root, "code", "orgdata.RData", sep='/'))
+data.fn <- paste(root, "code", "data.RData", sep='/')
+if (isTRUE(file.exists(data.fn))) {
+  cat("Loading data...\n")
+  load(data.fn)
+}
 
 ## init() is a special function that will be called from
 ## each script. Do what you want here - it is usually a good idea
