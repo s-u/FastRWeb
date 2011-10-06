@@ -37,6 +37,12 @@ ohead(..., level = 3)
 %  \code{\link{.jcall}}, \code{\link{.jcast}}
 %}
 \examples{
-
+  run <- function(...) {
+    out("<h2>My Table</h2>")
+    d = data.frame(a = 1:3, b = c("foo", "bar", "foobar"))
+    otable(d)
+    oprint(str(d))
+    done()
+  }    
 }
 \keyword{interface}

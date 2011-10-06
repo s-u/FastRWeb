@@ -1,20 +1,23 @@
+## environemnt to store result and headers in
+.e <- new.env(parent = emptyenv())
+
 out <- function(..., sep='', eol='\n')
-    .out <<- c(.out, paste(..., sep=sep, collapse=eol))
+    .e$out <- c(.e$out, paste(..., sep=sep, collapse=eol))
 
 otable <- function(..., tab='', tr='', cs='</td><td>') {
-  a=list(...)
-  if (length(a)==1 && is.list(a[[1]])) a=a[[1]]
-  ml=max(unlist(lapply(a,length)))
-  m=matrix(unlist(lapply(a,function(x) rep(as.character(x),length.out=ml))),ml)
+  a <- list(...)
+  if (length(a)==1 && is.list(a[[1]])) a <- a[[1]]
+  ml <- max(unlist(lapply(a,length)))
+  m <- matrix(unlist(lapply(a,function(x) rep(as.character(x),length.out=ml))),ml)
   tout <- unlist(lapply(1:ml, function(x) paste("<tr",tr,"><td>",paste(m[x,],collapse=cs),"</td></tr>",sep='')))
-  .out <<- c(.out, paste("<table ",tab,">\n",sep=''), tout, '</table>')
+  .e$out <- c(.e$out, paste("<table ",tab,">\n",sep=''), tout, '</table>')
 }
 
 ohead <- function(..., level=3)
-  .out <<- c(.out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
+  .e$out <- c(.e$out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
 
 oprint <- function(..., sep='\n')
-  .out <<- c(.out, paste("<pre>",paste(capture.output(print(...)),collapse=sep),"</pre>",sep=''))
+  .e$out <- c(.e$out, paste("<pre>",paste(capture.output(print(...)),collapse=sep),"</pre>",sep=''))
 
 arequest <- function(txt, target, where, ..., attr='') {
      if (length(list(...)))
@@ -24,23 +27,17 @@ arequest <- function(txt, target, where, ..., attr='') {
 }
 
 add.header <- function(txt) {
-    if (!exists(".headers"))
-          .headers <<- as.character(txt)
-      else
-          .headers <<- c(.headers, as.character(txt))
-      .headers
+    if (!is.null(.e$headers))
+      .e$headers <- as.character(txt)
+    else
+          .e$headers <- c(.e$headers, as.character(txt))
+    invisible(.e$headers)
 }
 
 #link <- function(url,target,par,...) paste("<a href=# onclick=\"req('",where,"','",target,"','",par,"');\">",...,"</a>",sep='',co
 
-# initialize output to an empty string
-.out <<- character(0)
-
-# same for headers except that they are local
-.headers <- character(0)
-
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
-  WebResult(cmd, ifelse(length(list(...)),paste(.out,paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(.out,collapse='\n')), type)
+  WebResult(cmd, ifelse(length(list(...)), paste(as.character(.e$out),paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(as.character(.e$out),collapse='\n')), type)
 
 # create query string from 'pars' and merge in any additional parameters passed
 .npar <- function(...) {
@@ -71,8 +68,8 @@ done <- function(..., cmd="html", type="text/html; charset=utf-8")
 .df <- function(x) {
   if (is.data.frame(x)) return(x)
   if (is.null(x)) return(NULL)
-  if (!is.list(x)) x = as.list(x)
-  attr(x,"row.names") = c(NA_integer_, -length(x[[1]]))
-  class(x) = "data.frame"
+  if (!is.list(x)) x <- as.list(x)
+  attr(x,"row.names") <- c(NA_integer_, -length(x[[1]]))
+  class(x) <- "data.frame"
   x
 }
