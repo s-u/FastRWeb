@@ -41,7 +41,8 @@ done <- function(..., cmd="html", type="text/html; charset=utf-8")
 
 # create query string from 'pars' and merge in any additional parameters passed
 .npar <- function(...) {
-     q <- if (exists("pars") && is.list(pars)) pars else list()
+     # we have to use get(), otherwise codetools get confused...
+     q <- if (exists("pars") && is.list(get("pars")) get("pars") else list()
      l <- list(...)
      for (i in names(l)) q[[i]] <- if (l[[i]] == "") NULL else l[[i]]
      if (!length(q)) return("")

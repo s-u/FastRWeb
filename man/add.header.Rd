@@ -8,13 +8,13 @@
   using \code{\link{WebResult}} with any other command than
   \code{"raw"}.
 
-  This is useful for handling of cookies, cache-behavior, implementing
+  This is useful for handling of cookies (see \code{getCookies()} in the
+  sample \code{common.R} script), cache-behavior, implementing
   URL redirection etc.
 }
 \usage{
 add.header(txt)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{txt}{character vector of header entires. The string may NOT
   include any CR/LF characters, those will be automatically generated
