@@ -1,0 +1,19 @@
+1.0-1	(under development)
+
+
+1.0-0	(2011/10/07)
+    o	CRAN release
+
+    o	add examples and tmp.R implementation
+
+    o	add support for headers manipulation
+
+    o	add sample project root configuration
+	and install.sh for installation
+
+
+0.1-0	(2008/12/06)
+    o	add WebResult and WebPlot classes
+
+	(2008/13/13)
+    o	first public version
