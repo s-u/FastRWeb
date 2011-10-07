@@ -13,7 +13,7 @@ WebPlot(width = 640, height = 480, type = "png", ...)
 }
 \arguments{
   \item{width}{width of the resulting plot (normally in pixels)}
-  \item{height}{height of the resulting plot (normally in pixels)
+  \item{height}{height of the resulting plot (normally in pixels)}
   \item{type}{type of the output}
   \item{\dots}{furhter arguments to be passed to \code{\link{Cairo}}}
 }

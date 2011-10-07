@@ -33,6 +33,8 @@ as.WebResult(x, \dots)
     returned to the browser}
   \item{headers}{string vector, optional additional headers to be sent
     to the browser. Must not contain CR or LF!}
+  \item{x}{object to convert into \code{WebResult}}
+  \item{\dots}{additional arguments passed to the method}
 }
 \details{
   There are four ways the results can be passed from R to the client
@@ -61,7 +63,7 @@ as.WebResult(x, \dots)
 
   All modes except \code{"raw"} cause FastRWeb to generate HTML headers
   based on the content and any custom headers that were added using
-  \code{\link{add.headers}} or the \code{headers} argument. Note that
+  \code{\link{add.header}} or the \code{headers} argument. Note that
   the latter two may NOT contain \code{Content-length:} and
   \code{Content-type:} entries as those are generated automatically
   based on the content and the \code{content.type} argument.
@@ -76,8 +78,9 @@ Simon Urbanek
 }
 %\note{
 %}
-%\seealso{
-%}
+\seealso{
+  \code{\link{add.header}}, \code{\link{done}}
+}
 %\examples{
 %}
 \keyword{interface}
