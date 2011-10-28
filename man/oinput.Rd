@@ -76,11 +76,15 @@ oselection(name, text, values = text, sel.index, sel.value, size, ...)
 }
 \examples{
 run <- function(foo, fruit, ...) {
+  fruits <- c("apples", "oranges", "pears")
+  if (!missing(fruit))
+    out("Thank you for choosing ", fruits[as.integer(fruit)],"!<p>")
+
   out("<form>")
   out("Foo:")
   oinput("foo", foo)
   out("<br>Select fruit:")
-  oselection("sel", c("apples", "oranges", "pears"), 1:3, fruit)
+  oselection("fruit", fruits, seq.int(fruits), , fruit)
   out("<br>")
   osubmit()
   out("</form>")
