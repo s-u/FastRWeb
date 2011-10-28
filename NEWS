@@ -1,4 +1,8 @@
 1.0-1	(under development)
+    o	added rudimentary form elements constructors:
+	oinput(), oselection() and osubmit()
+
+    o	some S3 methods were not registered in the namespace
 
 
 1.0-0	(2011/10/07)

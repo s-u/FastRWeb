@@ -1,1 +1,5 @@
-export(add.header, arequest, as.WebResult, done, ohead, oprint, otable, out, WebPlot, WebResult)
+export(add.header, arequest, as.WebResult, done, ohead, oinput, oselection, osubmit, oprint, otable, out, WebPlot, WebResult)
+S3method(as.WebResult, WebResult)
+S3method(as.WebResult, default)
+S3method(as.WebResult, WebPlot)
+S3method(as.character, WebPlot)
