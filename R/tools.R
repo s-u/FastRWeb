@@ -35,8 +35,8 @@ oselection <- function(name, text, values=text, sel.index, sel.value, size, ...)
   if (!missing(sel.index) && !missing(sel.value)) stop("only one of 'sel.index' and 'sel.value' can be specified")
   if (!length(name)) stop("element name must be not be empty")
   name <- as.character(name)[1]
-if (missing(sel.index) && missing(sel.value)) sel.index <- integer(0)
-  if (missing(sel.index)) sel.index <- match(values, sel.value)
+  if (missing(sel.index) && missing(sel.value)) sel.index <- integer(0)
+  if (missing(sel.index)) sel.index <- !is.na(match(values, sel.value))
   size <- if (missing(size)) '' else paste(" size='",as.character(size)[1],"'",sep='')
   if (!is.logical(sel.index)) sel.index <- !is.na(match(seq.int(values), sel.index))
   name <- as.character(name)[1]
