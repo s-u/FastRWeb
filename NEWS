@@ -1,4 +1,4 @@
-1.0-1	(under development)
+1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:
 	oinput(), oselection() and osubmit()
 
