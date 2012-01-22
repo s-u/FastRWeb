@@ -1,3 +1,7 @@
+1.0-2	(under development)
+    o	add remote.addr global containing the IP address of the remote
+	host performing the request
+
 1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:
 	oinput(), oselection() and osubmit()

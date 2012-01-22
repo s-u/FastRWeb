@@ -213,6 +213,9 @@ int main(int argc, char **argv) {
 
     char *pii = strdup(pi); /* sanitize path: replace .. by _. */
     { char *c=pii; while (*c) { if (c[0]=='.' && c[1]=='.') *c='_'; c++;  } }
+
+    char *client_ip = getenv("REMOTE_ADDR");
+    if (!client_ip) client_ip="";
 	
 	/* create R code to evaluate */
     snprintf(sfb, sizeof(sfb),
@@ -221,12 +224,13 @@ int main(int argc, char **argv) {
 			 ".out<-''; cmd<-'html'; ct<-'text/html'; hdr<-'';" \
 			 "qs<-'%s';" \
 			 "requestURI<-'%s';" \
+			 "remote.addr<-'%s';" \
 		         "raw.cookies<-'%s';" \
 			 "pars<-list();" \
 			 "lapply(strsplit(strsplit(qs,\"&\")[[1]],\"=\"),function(x) pars[[x[1]]]<<-x[2]);" \
 			 "if(exists('init') && is.function(init)) init();" \
 			 "as.character(try({source('%s/web.R/%s.R'); as.WebResult(do.call(run, pars)) },silent=TRUE))}\n",
-		 root, sqs, srqs, scook, root, pii);
+	     root, sqs, srqs, client_ip, scook, root, pii);
 	/* Note: for efficientcy we don't parse cookies. Use getCookies() to populate cookies. */
 	int res = 0;
 	
