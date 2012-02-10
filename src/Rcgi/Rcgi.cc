@@ -39,6 +39,10 @@ const char *sock = RSERVE_SOCK;
 #define LOG_COOKIE "userID="
 #endif
 
+
+/* NOTE: you can define RSERVE_HOST and (optionally ) RSERVE_PORT if you
+         want to use TCP instead of unix sockets */
+
 /* -- end of user configuirable part -- */
 
 /* The layout (relative to the project root):
@@ -90,7 +94,7 @@ const char *sock = RSERVE_SOCK;
 #include "Rconnection.h"
 #include <sys/time.h>
 
-char sfb[32768];
+char sfb[256*1024]; /* it should be big enough since we pass cookies as part of the command */
 
 struct timeval startT, stopT;
 
@@ -113,8 +117,8 @@ static void wlog(const char *cmd, const char *info) {
 	  while (*cookie_end && *cookie_end != ';') cookie_end++;
 	  if (*cookie_end) *cookie_end = 0; else cookie_end = 0;
       }
-  } else s = "";
-  if (!s) s="";
+  } else s = (char*) "";
+  if (!s) s = (char*) "";
   fprintf(f,"%u\t%.2f\t%s\t%s\t%s\t%s\t%s\t%s\n",
 	  (unsigned int) time(0),
 	  t2,
@@ -128,21 +132,45 @@ static void wlog(const char *cmd, const char *info) {
   fclose(f);
 }
 
+/* creates a sanitized copy of the string - escape \, ', " and replace \r or \n by ' ' */
+static char *sanitize(const char *src) {
+    char *dst = (char *) malloc(strlen(src) * 2 + 2); /* at most every character will be replaced */
+    const char *c = src;
+    char *d = dst;
+    while (*c) {
+	*d = *c;
+	if (*c == '\\') *(++d) = '\\';
+	else if (*c == '\'') { *(d++) = '\\'; *d = '\''; }
+	else if (*c == '\r' || *c == '\n') *d = ' ';
+	c++; d++;
+    }
+    *d = 0;
+    return dst;
+}
+
 int main(int argc, char **argv) {
     gettimeofday(&startT, 0);
     char *pi = getenv("PATH_INFO");
     while (pi && *pi=='/') pi++; /* skip leading slashes in PATH_INFO */
     if (!pi || !*pi) {
-		printf("Content-type: text/html\n\n<b>Error: no function or path specified.</b>\n");
+		printf("Content-type: text/html\nStatus: 400 No function or path specified\n\n<b>Error: no function or path specified.</b>\n");
 		return 0;
     }
     initsocks(); // this is needed for Win32 - it does nothing on unix
 
+#ifdef RSERVE_HOST /* did the user request a specific TCP host ? */
+#ifdef RSERVE_PORT /* is there also a custom port ? */
+    Rconnection *rc = new Rconnection(RSERVE_HOST, RSERVE_PORT);    
+#else /* custom host, but default port */
+    Rconnection *rc = new Rconnection(RSERVE_HOST);    
+#endif
+#else /* no custom host - use default behavior */
 #ifdef Win32 // no unix sockets, use local TCP/IP
     Rconnection *rc = new Rconnection();
-#else
+#else /* default on unix is socket */
     // use unix sockets
     Rconnection *rc = new Rconnection(sock, -1);
+#endif
 #endif
 	// try to connect
     int i=rc->connect();
@@ -159,7 +187,7 @@ int main(int argc, char **argv) {
 			return 0;
 		}
         sockerrorchecks(msg, 256, -1);
-        printf("Content-type: text/html\n\n<b>Unable to connect</b> (result=%d, socket:%s).\n", i, msg);
+        printf("Content-type: text/html\nStatus: 500 Cannot connect to Rserve\n\n<b>Unable to connect to Rserve</b> (result=%d, socket:%s).\n", i, msg);
 		delete rc;
 		return 0;
     }
@@ -167,46 +195,22 @@ int main(int argc, char **argv) {
     /* we need to forward QUERY_STRING, REQUEST_URI and HTTP_COOKIE to Rserve since it has
        no access to the CGI environemnt variables as it's in a separate progess */
     char *qs = getenv("QUERY_STRING");
-    char *sqs = "";
-    if (qs && *qs) { /* sanitize query string - escape \, ', " and replace \r or \n by ' ' */
-		sqs = (char *) malloc(strlen(qs)*2+2);
-		char *c = qs, *d = sqs;
-		while (*c) {
-			*d=*c;
-			if (*c=='\\') (d++)[0]='\\';
-			else if (*c=='\'') { d[0]='\\'; (d++)[0]='\''; }
-			else if (*c=='\r' || *c=='\n') *c=' ';
-			c++; d++;
-		}
-		*d=0;
-    }
+    char *sqs = (qs && *qs) ? sanitize(qs) : (char*) "";
 
-	char *rqs = getenv("REQUEST_URI");
-	char *srqs = "";
-	if (rqs && *rqs) { /* sanitize request string - escape \, ', " and replace \r or \n by ' ' */
-		srqs = (char *) malloc(strlen(rqs)*2+2);
-		char *c = rqs, *d = srqs;
-		while (*c) {
-			*d = *c;
-			if (*c == '\\') (d++)[0] = '\\';
-			else if (*c == '\'') { d[0] = '\\'; (d++)[0]='\''; }
-			else if (*c == '\r' || *c == '\n') *c=' ';
-			c++; d++;
-		}
-		*d = 0;
-	}
+    char *rqs = getenv("REQUEST_URI");
+    char *srqs = (rqs && *rqs) ? sanitize(rqs) : (char*) "";
 	
     char *cook = getenv("HTTP_COOKIE");
-    char *scook = "";
+    char *scook = (char*) "";
     if (cook && *cook) { /* sanitize by URI-encoding dangerous characters */
       scook = (char*) malloc(strlen(cook) * 3 + 3); /* very conservative estimate */
       char *c = cook, *d = scook;
       while (*c) {
-	if (*c < ' ' || *c=='\\' || *c=='\"' || *c=='\'') {
-	  snprintf(d,4,"%%%02x",(int)((unsigned char)*c));
-	  d+=2;
-	} else *d = *c;
-	c++; d++;
+	  if (*c < ' ' || *c == '\\' || *c == '\"' || *c == '\'') {
+	      snprintf(d, 4, "%%%02x",(int)((unsigned char)*c));
+	      d += 2;
+	  } else *d = *c;
+	  c++; d++;
       }
       *d = 0;
     }
@@ -215,22 +219,50 @@ int main(int argc, char **argv) {
     { char *c=pii; while (*c) { if (c[0]=='.' && c[1]=='.') *c='_'; c++;  } }
 
     char *client_ip = getenv("REMOTE_ADDR");
-    if (!client_ip) client_ip="";
+    if (!client_ip) client_ip = (char*) "";
+
+    char *method = getenv("REQUEST_METHOD");
+    if (!method) method = (char*) "GET";
+
+    char *rctype = getenv("CONTENT_TYPE");
+    if (!rctype) rctype = (char*) ""; 
 	
-	/* create R code to evaluate */
+    int rclen = -1;
+    char *rcl = getenv("CONTENT_LENGTH");
+    if (rcl && *rcl >= '0' && *rcl <= '9') rclen = atoi(rcl);
+
+    if (rclen > -1) {
+	char *data = (char*) malloc(rclen + 8), *dptr = data;
+	if (!data) { printf("Content-type: text/html\nStatus: 500 Out of memory\n\nERROR: cannot allocate memory for request body\n"); return 1; }
+	/* the current CXX client doesn't have a class for RAW so we use the low-level Rexp class for that */
+	int dp = itop(rclen), to_go = rclen;
+	memcpy(data, &dp, sizeof(int));
+	dptr += sizeof(int);
+	while (to_go > 0) {
+	    int n = fread(dptr, 1, to_go, stdin);
+	    if (n < 0) { printf("Content-type: text/html\nStatus: 400 request body read error\n\nERROR: read error reading request body.\n"); return 1; }
+	    to_go -= n;
+	    dptr += n;
+	}
+	Rexp *r_body = new Rexp(XT_RAW, data, dptr - data);
+	rc->assign("request.body", r_body);
+	delete r_body;
+    }
+
+    /* create R code to evaluate */
     snprintf(sfb, sizeof(sfb),
 			 "{setwd('%s/tmp');" \
 			 "library(FastRWeb);" \
-			 ".out<-''; cmd<-'html'; ct<-'text/html'; hdr<-'';" \
+			 ".out<-''; webapi<-1.1; cmd<-'html'; ct<-'text/html'; hdr<-'';" \
 			 "qs<-'%s';" \
-			 "requestURI<-'%s';" \
 			 "remote.addr<-'%s';" \
 		         "raw.cookies<-'%s';" \
-			 "pars<-list();" \
-			 "lapply(strsplit(strsplit(qs,\"&\")[[1]],\"=\"),function(x) pars[[x[1]]]<<-x[2]);" \
+	                 "request<-list(uri='%s', method='%s', c.type='%s', c.length=%d, body=.GlobalEnv$request.body, client.ip=remote.addr); requestURI <- request$uri; " \
+			 "pars<-list(); psrc<-if (nzchar(qs) || request$c.type != 'application/x-www-form-urlencoded' || !is.raw(request$body)) qs else rawToChar(request$body); " \
+			 "lapply(strsplit(strsplit(psrc,'&')[[1]],'='),function(x) pars[[x[1]]]<<-x[2]);" \
 			 "if(exists('init') && is.function(init)) init();" \
 			 "as.character(try({source('%s/web.R/%s.R'); as.WebResult(do.call(run, pars)) },silent=TRUE))}\n",
-	     root, sqs, srqs, client_ip, scook, root, pii);
+	     root, sqs, client_ip, scook, srqs, method, rctype, rclen, root, pii);
 	/* Note: for efficientcy we don't parse cookies. Use getCookies() to populate cookies. */
 	int res = 0;
 	
@@ -242,8 +274,8 @@ int main(int argc, char **argv) {
 		char *pay = x->stringAt(1);
 		char *ct  = x->stringAt(2);
 		char *hdr = x->stringAt(3);
-		if (!ct) ct="text/html; charset=utf-8";
-		if (!pay) pay="";
+		if (!ct) ct = (char*) "text/html; charset=utf-8";
+		if (!pay) pay = (char*) "";
 		if (hdr && *hdr) { /* useful for cookies etc. */
 			char *c = hdr;
 			while (*c) c++;
@@ -272,10 +304,10 @@ int main(int argc, char **argv) {
 						fclose(f);
 						if (!strcmp(cmd, "tmpfile")) unlink(buf);
 					} else {
-						printf("Content-type: text/html\n\nFile %s not found\n", buf);
+						printf("Content-type: text/html\nStatus: 404 File not found\n\nFile %s not found\n", buf);
 					}
 				} else {
-					printf("Content-type: text/html\n\nFile not specified\n");
+					printf("Content-type: text/html\nStatus: 500 script result error - file not specified\n\nFile not specified\n");
 				}
 			} else if (!strcmp(cmd, "raw")) {
 				wlog(cmd, "");
@@ -292,14 +324,14 @@ int main(int argc, char **argv) {
 			}
 		} else {
 			wlog("empty","");
-			printf("Content-type: text/html\n\nFunction failed (no result)\n");
+			printf("Content-type: text/html\nStatus: 500 R function failed (no result)\n\nFunction failed (no result)\n");
 		}
 		delete x;
     } else {
 		char ef[16];
 		snprintf(ef, 16, "%d", res);
 		wlog("efail",ef);
-		printf("Content-type: text/html\n\nEvaluation failed with error code %d\n", res);
+		printf("Content-type: text/html\nStatus: 500 Evaluation failed\n\nEvaluation failed with error code %d\n", res);
     }
     
     // dispose of the connection object - this implicitly closes the connection

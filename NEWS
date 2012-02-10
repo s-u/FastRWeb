@@ -1,6 +1,39 @@
-1.0-2	(under development)
-    o	add remote.addr global containing the IP address of the remote
-	host performing the request
+1.1-0   (under development)
+    o	The interface to the R process has been enhanced to support
+	request body and other methods including POST. A new global
+	variable `request' is a list that is populated with various
+	entries pertinent to the request:
+
+        request$uri - URI of the request (used to be request.URI)
+        request$method - method type (as string) such as "GET"
+	request$c.type - content type of the request body
+	request$c.length - length of the request body (-1 if
+                           there is no body)
+	request$body - raw vector containing the body of the request
+        request$client.ip - IP address of the client (as string)
+
+	All strings are guaranteed to be "" if not set.
+	request$body will be NULL if there is no body.
+
+    o	The interface to the R process now sets a global variable
+	`webapi` which is a real number that defines the version of
+	the interface used to pass information. It is now set to 1.1
+	and guarantees the information described above. This number
+	will be increased in case new features are added to the API
+	between the R process and the web server.
+
+    o	Rcgi now automatically falls back to the body of the request
+	if it has content type "application/x-www-form-urlencoded" and
+	the query string is empty. Other content types need to be
+	processed by the `run' function if needed.
+
+    o	Rcgi will respond with appropriate status code to various
+	error conditions, such as failed connection. Previously, Rcgi
+	would always respond with 200 OK.
+
+    o	Rcgi bugfix: the parameter sanitization code was behaving
+	improperly.
+
 
 1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:
