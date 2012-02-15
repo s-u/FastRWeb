@@ -38,7 +38,7 @@ parse.multipart(request = .GlobalEnv$request)
 \note{
   The typical use is along the lines of:
   
-  \code{if (grep("^multipart", request$s.type)) pars <- parse.multipart()}
+  \code{if (grepl("^multipart", request$s.type)) pars <- parse.multipart()}
   
   The function uses warnings to communicate parsing issues. While
   debugging, it may be usedful to convert then to errors via
