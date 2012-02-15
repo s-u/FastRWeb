@@ -9,7 +9,6 @@ parse.multipart <- function(request = .GlobalEnv$request) {
   bytesize <- function(x) nchar(x, type='bytes')
   raw.match <- function(needele, haystack, all=TRUE) grepRaw(needele, haystack, fixed=TRUE, all=all)
   unescape <- function(s) chartr('+',' ',URLdecode(s))
-  escape <- function(s) gsub('+', '%2B', URLencode(s), fixed=TRUE)
 
   body <- request$body
   content_length <- request$c.length
@@ -155,7 +154,7 @@ parse.multipart <- function(request = .GlobalEnv$request) {
 				# Trim trailing EOL
 				if (len > 2 && length(raw.match(EOL,value[(len-1):len],all=FALSE)))
 				    len <- len -2
-				params[[name]] <- escape(rawToChar(value[1:len]))
+				params[[name]] <- rawToChar(value[1:len])
 			    }
 			} 
 			break
