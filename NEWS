@@ -25,7 +25,11 @@
     o	Rcgi now automatically falls back to the body of the request
 	if it has content type "application/x-www-form-urlencoded" and
 	the query string is empty. Other content types need to be
-	processed by the `run' function if needed.
+	processed by the `run' function if needed. For multi-part
+	content FastRWeb now provides parse.multipart() function
+	(courtesy of Jeff Horner) - it is typically used in run() as
+
+	if (grep("^multipart", request$c.type)) pars <- parse.multipart()
 
     o	Rcgi will respond with appropriate status code to various
 	error conditions, such as failed connection. Previously, Rcgi
