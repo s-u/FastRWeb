@@ -11,6 +11,8 @@
                            there is no body)
 	request$body - raw vector containing the body of the request
         request$client.ip - IP address of the client (as string)
+	request$raw.cookies - raw cookie string
+	request$path.info - path part beyond the script name
 
 	All strings are guaranteed to be "" if not set.
 	request$body will be NULL if there is no body.
@@ -22,14 +24,19 @@
 	will be increased in case new features are added to the API
 	between the R process and the web server.
 
-    o	Rcgi now automatically falls back to the body of the request
-	if it has content type "application/x-www-form-urlencoded" and
-	the query string is empty. Other content types need to be
-	processed by the `run' function if needed. For multi-part
-	content FastRWeb now provides parse.multipart() function
-	(courtesy of Jeff Horner) - it is typically used in run() as
+    o	FastRWeb now provides an internal `.run()' function which does
+	the necessary processing of a request, so additional
+	FastRWeb-compliant front-ends are easy to implement by simply
+	creating the request structure and calling the `.run()'
+	function.
 
-	if (grepl("^multipart", request$c.type)) pars <- parse.multipart()
+    o	FastRWeb now attempts to parse known content types - not just
+	the query string but also "application/x-www-form-urlencoded"
+	and multi-part encodings. If the key name is used, query
+	string has higher precedence. It is still possible to separate
+	the various types by hand from request$body, for multipart
+	content content FastRWeb now provides parse.multipart()
+	function (courtesy of Jeff Horner).
 
     o	Rcgi will respond with appropriate status code to various
 	error conditions, such as failed connection. Previously, Rcgi

@@ -251,18 +251,10 @@ int main(int argc, char **argv) {
 
     /* create R code to evaluate */
     snprintf(sfb, sizeof(sfb),
-			 "{setwd('%s/tmp');" \
-			 "library(FastRWeb);" \
-			 ".out<-''; webapi<-1.1; cmd<-'html'; ct<-'text/html'; hdr<-'';" \
-			 "qs<-'%s';" \
-			 "remote.addr<-'%s';" \
-		         "raw.cookies<-'%s';" \
-	                 "request<-list(uri='%s', method='%s', c.type='%s', c.length=%d, body=.GlobalEnv$request.body, client.ip=remote.addr); requestURI <- request$uri; " \
-			 "pars<-list(); psrc<-if (nzchar(qs) || request$c.type != 'application/x-www-form-urlencoded' || !is.raw(request$body)) qs else rawToChar(request$body); " \
-			 "lapply(strsplit(strsplit(psrc,'&')[[1]],'='),function(x) pars[[x[1]]]<<-x[2]);" \
-			 "if(exists('init') && is.function(init)) init();" \
-			 "as.character(try({source('%s/web.R/%s.R'); as.WebResult(do.call(run, pars)) },silent=TRUE))}\n",
-	     root, sqs, client_ip, scook, srqs, method, rctype, rclen, root, pii);
+	     "{library(FastRWeb);"					\
+	     "request<-list(uri='%s', method='%s', c.type='%s', c.length=%d, body=.GlobalEnv$request.body, client.ip='%s', query.string='%s', raw.cookies='%s'); FastRWeb:::.run(request,'%s','%s')}",
+	     srqs, method, rctype, rclen, client_ip, sqs, scook, root, pii);
+
 	/* Note: for efficientcy we don't parse cookies. Use getCookies() to populate cookies. */
 	int res = 0;
 	

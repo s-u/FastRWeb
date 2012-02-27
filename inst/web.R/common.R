@@ -5,7 +5,7 @@
 
 getCookies <- function() {
     ## raw.cookies is a variable populated by the FastRWeb engine
-    ckv <- gsub("^ +","",strsplit(raw.cookies,";",fixed=TRUE)[[1]])
+    ckv <- gsub("^ +","",strsplit(request$raw.cookies,";",fixed=TRUE)[[1]])
     cookies <<- if (length(ckv)) {
             keys = unlist(lapply(strsplit(ckv,"="),function(x) x[1]))
                 vals = substr(ckv,nchar(keys)+2,99999)
