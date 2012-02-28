@@ -27,7 +27,7 @@
     sfn <- sprintf("%s/web.R/%s.R", root, path)
     if (!file.exists(sfn)) { # if the file doesn't exist, we try to separate script name from PATH_INFO
       left <- path
-      while (nzchar(left <- gsub("/[^/]+$", "", left)) && !file.exists(cand <- sprintf("%s/web.R/%s.R", root, left))) {}
+      while (nzchar(left <- gsub("/[^/]*$", "", left)) && !file.exists(cand <- sprintf("%s/web.R/%s.R", root, left))) { if (!grepl("/", left)) left <- '' }
       if (!nzchar(left))
         return(c("html", paste("Script ", path, ".R not found", sep=''), "text/html", "Status: 404 Script not found"))
       request$path.info <- gsub(left, "", path, fixed=TRUE)
@@ -39,4 +39,28 @@
     source(sfn, local=TRUE)
     as.WebResult(do.call(run, pars))
   }, silent=TRUE))
+}
+
+
+### this maps the Rhttpd/Rserve direct HTTP API into .run
+.http.request <- function(url, query, body, headers) {
+  root <- getOption("FastRWeb.root")
+  if (is.null(root)) root <- "/var/FastRWeb"
+  request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string='', raw.cookies='')
+  # this is a bit convoluted - the HTTP already parses the body - disable it where you can
+  if (!is.raw(body)) {
+    if (length(body)) {
+      sb <- paste(unlist(lapply(names(body), function(x) paste(URLencode(x),"=",URLencode(as.character(body[[x]])),sep=''))),collapse='&')
+      request$body <- charToRaw(sb)
+      request$c.length <- length(request$body)
+      request$c.type <- 'application/x-www-form-urlencoded'
+    }
+  } else {
+    request$body <- body
+    request$c.type <- attr(body, "content-type")
+    request$c.length <- length(body)
+  }
+  # FIXME: we are ignoring headers ...
+  r <- .run(request, root, url)
+  list(r[2])
 }
