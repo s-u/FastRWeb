@@ -94,6 +94,11 @@ const char *sock = RSERVE_SOCK;
 #include "Rconnection.h"
 #include <sys/time.h>
 
+#ifdef WIN32 // on Windows we have to turn stdout into binary mode
+#include <io.h>
+#include <fcntl.h>
+#endif
+
 char sfb[256*1024]; /* it should be big enough since we pass cookies as part of the command */
 
 struct timeval startT, stopT;
@@ -291,6 +296,10 @@ int main(int argc, char **argv) {
 					if (f) {
 						int n = 0;
 						printf("Content-type: %s\n\n", ct);
+#ifdef WIN32
+						/* continue with payload in binary mode */
+						setmode(fileno(stdout), O_BINARY);
+#endif
 						while (!feof(f) && (n=fread(sfb, 1, 4096, f))>0)
 							fwrite(sfb, 1, n, stdout);
 						fclose(f);

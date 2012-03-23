@@ -45,6 +45,12 @@
     o	Rcgi bugfix: the parameter sanitization code was behaving
 	improperly.
 
+    o	Rcgi has been updated to switch to binary stdout for file and
+	tmpfile on Windows, otherwise binary data (like images) will
+	arrive malformed at the webserver when running FastRWeb on
+	Windows (thanks to Francois Guillem for reporting and
+	testing).
+
 
 1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:
