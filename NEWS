@@ -51,6 +51,8 @@
 	Windows (thanks to Francois Guillem for reporting and
 	testing).
 
+    o	clean up quoting inside attributes in o* tools
+
 
 1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:
