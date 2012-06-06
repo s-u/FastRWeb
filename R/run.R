@@ -46,7 +46,10 @@
 .http.request <- function(url, query, body, headers) {
   root <- getOption("FastRWeb.root")
   if (is.null(root)) root <- "/var/FastRWeb"
-  request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string='', raw.cookies='')
+  # FIXME: this is somewhat stupid - we already have the decoded query and we have to re-encode it
+  #        we should create a back-door for encoded queries ...
+  query <- if (is.null(query)) '' else paste(URLencode(names(query)),"=",URLencode(query),collapse='&',sep='')
+  request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string=query, raw.cookies='')
   # this is a bit convoluted - the HTTP already parses the body - disable it where you can
   if (!is.raw(body)) {
     if (length(body)) {
@@ -62,5 +65,14 @@
   }
   # FIXME: we are ignoring headers ...
   r <- .run(request, root, url)
-  list(r[2])
+  if (length(r) < 2) return(list(r))
+  cmd <- r[1]
+  payload <- r[2]
+  ct <- if (length(r) > 2) r[3] else "text/html"
+  h <- if (length(r) > 3) r[4] else character(0)
+  if (any(nchar(h) == 0L)) h <- h[nchar(h) > 0]
+  if (cmd == "tmpfile" || cmd == "file") {
+    fn <- paste(root, if (cmd == "tmpfile") "tmp" else "web", gsub("/", "_", payload, fixed=TRUE), sep='/')
+    list(file=fn, ct, h)
+  } else list(payload, ct, h)
 }
