@@ -1,0 +1,86 @@
+Requirements:
+
+ - web server supporting CGI or PHP
+ - Rserve
+
+ or
+
+ - Rserve 1.7 or higher with HTTP support
+
+
+  Although it is possible to use FastRWeb on Windows, it is very
+  strongly recommended to use a unix operating system, because Windows
+  has too many limitations and is explicitly not suitable for a server
+  environment involving R (Windows supports neither fork(), nor unix
+  sockets nor parallel connections. This has severe security and
+  performance implications).
+
+
+  The default configuration of FastRWeb assumes that the project root
+  will be in \code{/var/FastRWeb} and that the server is a unix
+  machine. It is possible to install FastRWeb in other settings, but it
+  will require modification of the sample configuration files.
+
+  First, the \code{FastRWeb} package should be installed (typically
+  using \code{install.packages("FastRWeb")} in R). The installed package
+  contains shell script that will setup the environment in
+  \code{/var/FastRWeb}. To run the script, use
+
+  \code{system(paste("cd",system.file(package="FastRWeb"),"&& install.sh"))}
+
+  For the anatomy of the \code{/var/FastRWeb} project root see below.
+
+  Once created, you can inspect the Rserve configuration file
+  \code{/var/FastRWeb/code/rserve.conf} and adjust it for your needs if
+  necessary. You can also look a the Rserve initialization script
+  located in \code{/var/FastRWeb/code/rserve.R} which is used to pre-load
+  data, packages etc. into Rserve. If you are happy with it, you can
+  start Rserve using \code{/var/FastRWeb/code/start}
+
+  There are two fundamental ways to run FastRWeb: a) using a webserver
+  with a CGI or PHP client or b) using HTTP server in Rserve 1.7 and
+  up. The latter more efficient but is currently experimental as it
+  was added very recently, the former is considered stable as it has
+  been proven in many production projects. The following section
+  decribes the webserver + CGI approach.
+
+  In order to tell your webserver to use FastRWeb, you have two options:
+  CGI script or PHP script. The former is more common as it works with
+  any web server. The FastRWeb R package builds and installs the Rcgi
+  script as part of its installation process into the \code{cgi-bin}
+  directory of the package, but it has no way of knowing about the
+  location of your server's \code{cgi-bin} directory, so it is left to
+  the user to copy the script in the proper location.
+  Use \code{system.file("cgi-bin", package="FastRWeb")} in R to locate
+  the package directory - it will contain an executable \code{Rcgi} (or
+  \code{Rcgi.exe} on Windows) and copy that executable into you server's
+  \code{cgi-bin} directory (on Debian/Ubuntu this is typically
+  \code{/usr/lib/cgi-bin}, on Mac OS X it is
+  \code{/Library/WebServer/CGI-Executables}). Most examples in FastRWeb
+  assume that you have renamed the script to \code{R} instead of
+  \code{Rcgi}, but you can choose any name.
+
+  With Rserve started and the CGI script in place, you should be able to
+  open a browser and run your first script, the URL will probably look
+  something like \code{http://my.server/cgi-bin/R/main}.
+  This will invoke the script \code{/var/FastRWeb/web.R/main.R} by
+  sourcing it and running the \code{run()} function.
+
+  For advanced topics, please see \code{Rserve} documentation. For
+  production systems we encourage the use of \code{gid}, \code{uid},
+  \code{sockmod} and \code{umask} configuration directives to secure the
+  access to the Rserve according to your web server configuration.
+
+
+  If you are using Rserve 1.7 or higher, you can use Rserve's built-in
+  HTTP and/or HTTPS server. The benefit is that the request is
+  processed directly in Rserve so there is no need for a separate
+  client connection. You still retain all the advantages such as
+  parallel conenctions, data/code preloadiong etc. In order to
+  activate FastRWeb support, you should enable the HTTP and/or HTTPS
+  server in Rserve's configuration and add at least the following
+  lines to the start startup rserve.R script:
+
+     library(FastRWeb)
+     .http.request <- FastRWeb:::.http.request
+

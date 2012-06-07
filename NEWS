@@ -30,6 +30,10 @@
 	creating the request structure and calling the `.run()'
 	function.
 
+    o	FastRWeb contains an experimental .http.request()
+	implementation which can be used with Rserve's HTTP server,
+	removing all middle layers - no webserver, CGI or PHP is needed.
+
     o	FastRWeb now attempts to parse known content types - not just
 	the query string but also "application/x-www-form-urlencoded"
 	and multi-part encodings. If the key name is used, query
