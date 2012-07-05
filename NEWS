@@ -57,6 +57,13 @@
 
     o	clean up quoting inside attributes in o* tools
 
+    o	Parameters to run() were passed in URL-encoded form - that was
+	a bug. They are now passed in decoded form as intended.
+	WARNING: if you worked around this bug in your scripts for
+	FastRWeb 1.0 make sure you remove the work around for
+	FastRWeb 1.1 and higher (check for the presence of webapi
+	if you need to support both).
+
 
 1.0-1	(2011/12/10)
     o	added rudimentary form elements constructors:

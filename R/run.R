@@ -16,11 +16,11 @@
     pars <- list()
     if (request$c.type == 'application/x-www-form-urlencoded' && is.raw(request$body)) {
       ue <- rawToChar(request$body)
-      lapply(strsplit(strsplit(ue,'&')[[1]], '='),function(x) pars[[x[1]]] <<- x[2])
+      lapply(strsplit(strsplit(ue,'&')[[1]], '='),function(x) pars[[URLdecode(x[1])]] <<- URLdecode(x[2]))
     }
     if (grepl("^multipart", request$c.type)) pars <- parse.multipart()
     # add qs
-    lapply(strsplit(strsplit(qs,'&')[[1]], '='),function(x) if (length(x) > 1L) pars[[x[1]]] <<- x[2])
+    lapply(strsplit(strsplit(qs,'&')[[1]], '='),function(x) if (length(x) > 1L) pars[[URLdecode(x[1])]] <<- URLdecode(x[2]))
   
     # find the script
     request$path.info <- ''
