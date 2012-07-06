@@ -3,6 +3,7 @@
 \alias{oprint}
 \alias{otable}
 \alias{ohead}
+\alias{oclear}
 \title{
   FastRWeb HTML output functions
 }
@@ -15,12 +16,15 @@
   \code{otable} constructs a table
 
   \code{ohead} creates a header
+
+  \code{oclear} clears (by discarding existing content) the output buffer and/or headers
 }
 \usage{
 out(..., sep = "", eol = "\n")
 oprint(..., sep = "\n")
 otable(..., tab = "", tr = "", cs = "</td><td>")
 ohead(..., level = 3)
+oclear(output=TRUE, headers=FALSE)
 }
 \arguments{
   \item{...}{entries to output or print}
@@ -30,6 +34,8 @@ ohead(..., level = 3)
   \item{tr}{additional attibutes for table row (\code{tr}) HTML tag}
   \item{cs}{column separator}
   \item{level}{level of the header (1 is the topmost)}
+  \item{output}{logical, if \code{TRUE} then the output is cleared}
+  \item{headers}{logical, if \code{TRUE} then the headers are cleared}
 }
 \value{
   All functions returns the full document as constructed so far
@@ -57,9 +63,10 @@ ohead(..., level = 3)
 }
 \examples{
   run <- function(...) {
-    out("<h2>My Table</h2>")
+    ohead("My Table", level=2)
     d <- data.frame(a = 1:3, b = c("foo", "bar", "foobar"))
     otable(d)
+    out("<p><b>Verbatim R output:</b><br>")
     oprint(str(d))
     done()
   }    

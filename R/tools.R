@@ -4,6 +4,11 @@
 out <- function(..., sep='', eol='\n')
     .e$out <- c(.e$out, paste(..., sep=sep, collapse=eol))
 
+oclear <- function(output=TRUE, headers=FALSE) {
+  if (output) .e$out <- character(0)
+  if (headers) .e$headers <- NULL
+}
+
 otable <- function(..., tab='', tr='', cs='</td><td>') {
   a <- list(...)
   if (length(a)==1 && is.list(a[[1]])) a <- a[[1]]
@@ -75,6 +80,7 @@ add.header <- function(txt) {
 
 #link <- function(url,target,par,...) paste("<a href=# onclick=\"req('",where,"','",target,"','",par,"');\">",...,"</a>",sep='',co
 
+# note: .e$headers are added by WebResult automatically
 done <- function(..., cmd="html", type="text/html; charset=utf-8")
   WebResult(cmd, ifelse(length(list(...)), paste(as.character(.e$out),paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(as.character(.e$out),collapse='\n')), type)
 
