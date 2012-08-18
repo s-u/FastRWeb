@@ -1,6 +1,6 @@
 .run <- function(request, root, path) {
   as.character(try({
-    webapi <- 1.1
+    .GlobalEnv$webapi <- 1.1
     .e$.out <- ''
     cmd <- 'html'
     ct <- 'text/html'
@@ -34,6 +34,7 @@
       sfn <- cand
     }
 
+    .GlobalEnv$request <- request
     if(exists('init') && is.function(init)) init()
 
     source(sfn, local=TRUE)
@@ -42,13 +43,16 @@
 }
 
 
+## URLencode is *not* vectorized in R, believe it or not so we have to work around that ...
+URLenc <- function(x) unlist(lapply(x, URLencode))
+
 ### this maps the Rhttpd/Rserve direct HTTP API into .run
 .http.request <- function(url, query, body, headers) {
   root <- getOption("FastRWeb.root")
   if (is.null(root)) root <- "/var/FastRWeb"
   # FIXME: this is somewhat stupid - we already have the decoded query and we have to re-encode it
   #        we should create a back-door for encoded queries ...
-  query <- if (is.null(query)) '' else paste(URLencode(names(query)),"=",URLencode(query),collapse='&',sep='')
+  query <- if (is.null(query)) '' else paste(URLenc(names(query)),"=",URLenc(query),collapse='&',sep='')
   request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string=query, raw.cookies='')
   # this is a bit convoluted - the HTTP already parses the body - disable it where you can
   if (!is.raw(body)) {

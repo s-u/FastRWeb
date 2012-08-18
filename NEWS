@@ -57,7 +57,7 @@
 
     o	clean up quoting inside attributes in o* tools
 
-    o	added oclean() to re-set output and/or headers
+    o	added oclear() to re-set output and/or headers
 
     o	Parameters to run() were passed in URL-encoded form - that was
 	a bug. They are now passed in decoded form as intended.
