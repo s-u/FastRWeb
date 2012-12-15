@@ -1,3 +1,5 @@
+1.1-1	(under development)
+
 1.1-0   (2012-12-15)
     o	The interface to the R process has been enhanced to support
 	request body and other methods including POST. A new global
