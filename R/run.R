@@ -57,8 +57,7 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
 .http.request <- function(url, query, body, headers) {
   root <- getOption("FastRWeb.root")
   if (is.null(root)) root <- "/var/FastRWeb"
-  # FIXME: this is somewhat stupid - we already have the decoded query and we have to re-encode it
-  #        we should create a back-door for encoded queries ...
+
   request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string='', raw.cookies='')
   if (length(query)) request$query.vector <- query ## back-door for parsed queries
   
@@ -73,7 +72,8 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
     h.vals <- h.vals[grep("^[^:]+:", h.lines)]
     h.keys <- names(h.vals)
 
-    if ("request-method" %in% h.keys) request$method <- h.vals["request-method"]
+    if ("request-method" %in% h.keys) request$method <- c(h.vals["request-method"])
+    if ("client-addr" %in% h.keys) request$client.ip <- c(h.vals["client-addr"])
     if ("cookie" %in% names(h.vals)) request$raw.cookies <- paste(h.vals[h.keys == "cookie"], collapse=" ")
   }
 
