@@ -19,8 +19,15 @@
       lapply(strsplit(strsplit(ue,'&')[[1]], '='),function(x) pars[[URLdecode(x[1])]] <<- URLdecode(x[2]))
     }
     if (grepl("^multipart", request$c.type)) pars <- parse.multipart()
+
     # add qs
-    lapply(strsplit(strsplit(qs,'&')[[1]], '='),function(x) if (length(x) > 1L) pars[[URLdecode(x[1])]] <<- URLdecode(x[2]))
+    if (is.null(request$query.vector)) {
+      for (x in strsplit(strsplit(qs,'&')[[1]], '=')) if (length(x) > 1L) pars[[URLdecode(x[1])]] <<- URLdecode(x[2])
+    } else {
+      qs <- request$query.vector
+      qn <- names(qs)
+      for (i in seq.int(qs)) pars[[qn[i]]] <<- qs[i]
+    }
   
     # find the script
     request$path.info <- ''
@@ -52,9 +59,25 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
   if (is.null(root)) root <- "/var/FastRWeb"
   # FIXME: this is somewhat stupid - we already have the decoded query and we have to re-encode it
   #        we should create a back-door for encoded queries ...
-  query <- if (is.null(query)) '' else paste(URLenc(names(query)),"=",URLenc(query),collapse='&',sep='')
-  request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string=query, raw.cookies='')
-  # this is a bit convoluted - the HTTP already parses the body - disable it where you can
+  request <- list(uri=url, method='GET', c.type='', c.length=-1, body=NULL, client.ip='0.0.0.0', query.string='', raw.cookies='')
+  if (length(query)) request$query.vector <- query ## back-door for parsed queries
+  
+  ## process headers to pull out request method (if supplied) and cookies
+  if (is.raw(headers)) headers <- rawToChar(headers)
+  if (is.character(headers)) {
+    ## parse the headers into key/value pairs, collapsing multi-line values
+    h.lines <- unlist(strsplit(gsub("[\r\n]+[ \t]+"," ", headers), "[\r\n]+"))
+    h.keys <- tolower(gsub(":.*", "", h.lines))
+    h.vals <- gsub("^[^:]*:[[:space:]]*", "", h.lines)
+    names(h.vals) <- h.keys
+    h.vals <- h.vals[grep("^[^:]+:", h.lines)]
+    h.keys <- names(h.vals)
+
+    if ("request-method" %in% h.keys) request$method <- h.vals["request-method"]
+    if ("cookie" %in% names(h.vals)) request$raw.cookies <- paste(h.vals[h.keys == "cookie"], collapse=" ")
+  }
+
+  ## this is a bit convoluted - the HTTP already parses the body - disable it where you can
   if (!is.raw(body)) {
     if (length(body)) {
       sb <- paste(unlist(lapply(names(body), function(x) paste(URLencode(x),"=",URLencode(as.character(body[[x]])),sep=''))),collapse='&')
@@ -67,7 +90,7 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
     request$c.type <- attr(body, "content-type")
     request$c.length <- length(body)
   }
-  # FIXME: we are ignoring headers ...
+
   r <- .run(request, root, url)
   if (length(r) < 2) return(list(r))
   cmd <- r[1]
