@@ -16,7 +16,7 @@
     pars <- list()
     if (request$c.type == 'application/x-www-form-urlencoded' && is.raw(request$body)) {
       ue <- rawToChar(request$body)
-      for (x in strsplit(strsplit(ue,'&')[[1]], '=')) pars[[URLdecode(x[1])]] <- URLdecode(x[2]))
+      for (x in strsplit(strsplit(ue,'&')[[1]], '=')) pars[[URLdecode(x[1])]] <- URLdecode(x[2])
     }
     if (grepl("^multipart", request$c.type)) pars <- parse.multipart()
 
