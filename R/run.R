@@ -41,6 +41,7 @@
       sfn <- cand
     }
 
+    oclear(TRUE, TRUE)
     .GlobalEnv$request <- request
     if(exists('init') && is.function(init)) init()
 
