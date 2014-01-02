@@ -1,6 +1,10 @@
 1.1-1	(under development)
     o	clear the output buffer before serving run() scripts
 
+    o	using out() on WebPlots will now use dataURI instead
+	of temporary files
+
+
 1.1-0   (2012-12-15)
     o	The interface to the R process has been enhanced to support
 	request body and other methods including POST. A new global

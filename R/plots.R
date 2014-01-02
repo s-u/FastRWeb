@@ -12,5 +12,8 @@ as.WebResult.WebPlot <- function(x, ...) {
 
 as.character.WebPlot <- function(x, ...) {
   dev.off()
-  paste("<img src='tmp?file=",x$file,"&mime=",x$mime,"' width=",x$width," height=",x$height,">",sep='')
+  sz <- file.info(x$file)$size
+  r <- readBin(x$file, raw(), sz)
+  unlink(x$file)
+  paste0("<img src='",base64enc::dataURI(r, x$mime),"' width=",x$width," height=",x$height,">")
 }
