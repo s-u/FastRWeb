@@ -55,7 +55,7 @@ oinput <- function(name, value, size, type="text", checked=FALSE, ...) {
   if (!length(name)) stop("element name must be not be empty")
   name <- as.character(name)[1]
   size <- if (missing(size)) '' else paste(" size='",as.character(size)[1],"'",sep='')
-  value <- if (missing(value)) '' else paste(" value=\"",gsub('"','&quot;',as.character(value)[1]),'"',sep='')
+  value <- if (missing(value)) { if (type=="checkbox") "TRUE" else "" } else paste(" value=\"",gsub('"','&quot;',as.character(value)[1]),'"',sep='')
   checked <- if (isTRUE(checked)) " checked" else ""
   .e$out <- c(.e$out, paste("<input type=\"", as.character(type)[1], "\" name=\"",name,"\"", value, size, checked, .opts(...), ">", sep=''))
 }
@@ -80,9 +80,11 @@ add.header <- function(txt) {
 
 #link <- function(url,target,par,...) paste("<a href=# onclick=\"req('",where,"','",target,"','",par,"');\">",...,"</a>",sep='',co
 
+.fix.shiny <- function(x, fix=FALSE) if (fix) gsub('href="shared/','href="/shared/',gsub('src="shared/','src="/shared/',x,fixed=TRUE),fixed=TRUE) else x
+
 # note: .e$headers are added by WebResult automatically
-done <- function(..., cmd="html", type="text/html; charset=utf-8")
-  WebResult(cmd, ifelse(length(list(...)), paste(as.character(.e$out),paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(as.character(.e$out),collapse='\n')), type)
+done <- function(..., cmd="html", type="text/html; charset=utf-8", fix.shiny=FALSE)
+  WebResult(cmd, .fix.shiny(ifelse(length(list(...)), paste(as.character(.e$out),paste(...,sep='',collapse='\n'),sep='',collapse='\n'), paste(as.character(.e$out),collapse='\n')), fix.shiny), type)
 
 # create query string from 'pars' and merge in any additional parameters passed
 .npar <- function(...) {
