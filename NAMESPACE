@@ -1,4 +1,6 @@
 export(add.header, arequest, as.WebResult, done, oclear, ohead, oinput, oselection, osubmit, oprint, otable, out, WebPlot, WebResult, parse.multipart)
+import(base64enc)
+import(Cairo)
 S3method(as.WebResult, WebResult)
 S3method(as.WebResult, default)
 S3method(as.WebResult, WebPlot)
