@@ -3,8 +3,8 @@ Version: 1.1-1
 Title:  Fast Interactive Framework for Web Scripting Using R
 Author: Simon Urbanek <Simon.Urbanek@r-project.org>, Jeffrey Horner <jeffrey.horner@gmail.com>
 Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
-Depends: R (>= 2.0.0), Cairo
-Imports: base64enc
+Depends: R (>= 2.0.0)
+Imports: base64enc, Cairo
 Suggests: Rserve
 Description: This package provides a way of creating rich web contents using fast-response R
 License: GPL-2
