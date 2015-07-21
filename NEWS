@@ -4,6 +4,9 @@
     o	using out() on WebPlots will now use dataURI instead
 	of temporary files
 
+    o	import Cairo to avoid namespace clash with other packages
+	that define Cairo to be something entirely different.
+
 
 1.1-0   (2012-12-15)
     o	The interface to the R process has been enhanced to support
