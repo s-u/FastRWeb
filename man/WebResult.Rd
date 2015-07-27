@@ -19,7 +19,8 @@
   which act as convertors transforming R objects into web results.
 }
 \usage{
-WebResult(cmd = "html", payload = "", content.type = "text/html; charset=utf-8", headers = character(0))
+WebResult(cmd = "html", payload = "", content.type = "text/html; charset=utf-8",
+          headers = character(0))
 as.WebResult(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
