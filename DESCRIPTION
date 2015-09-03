@@ -1,5 +1,5 @@
 Package: FastRWeb
-Version: 1.1-1
+Version: 1.1-2
 Title:  Fast Interactive Framework for Web Scripting Using R
 Author: Simon Urbanek <Simon.Urbanek@r-project.org>, Jeffrey Horner <jeffrey.horner@gmail.com>
 Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
