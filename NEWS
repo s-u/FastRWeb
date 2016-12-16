@@ -6,6 +6,12 @@
     o	added FastRWeb:::htmlEscape(). It is currently not exported as
 	to not clash with htmltools.
 
+    o	append `.pdf` and `.svg` to the temporary file name in
+	`WebPlot` for PDF and SVG output, because those back-ends
+	always append the extension if not present. Also change
+	tag type from "img" to "embed" for PDF and add the correct
+	mime type for type="svg".
+
 
 1.1-1	(2015-07-27)
     o	clear the output buffer before serving run() scripts
