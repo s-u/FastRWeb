@@ -1,6 +1,8 @@
 ## environemnt to store result and headers in
 .e <- new.env(parent = emptyenv())
 
+htmlEscape <- function(x) gsub(">","&gt;",gsub("<","&lt;",gsub("&","&amp;",x,fixed=TRUE),fixed=TRUE),fixed=TRUE)
+
 out <- function(..., sep='', eol='\n')
     .e$out <- c(.e$out, paste(..., sep=sep, collapse=eol))
 
@@ -9,31 +11,35 @@ oclear <- function(output=TRUE, headers=FALSE) {
   if (headers) .e$headers <- NULL
 }
 
-otable <- function(..., tab='', tr='', cs='</td><td>') {
+otable <- function(..., tab='', tr='', cs='</td><td>', escape=TRUE) {
   a <- list(...)
+  esc <- if (is.function(escape)) escape else if (isTRUE(escape)) htmlEscape else identity
   if (length(a)==1 && is.list(a[[1]])) a <- a[[1]]
   ml <- max(unlist(lapply(a,length)))
   m <- matrix(unlist(lapply(a,function(x) rep(as.character(x),length.out=ml))),ml)
-  tout <- unlist(lapply(1:ml, function(x) paste("<tr",tr,"><td>",paste(m[x,],collapse=cs),"</td></tr>",sep='')))
+  tout <- unlist(lapply(1:ml, function(x) paste("<tr",tr,"><td>",esc(paste(m[x,],collapse=cs)),"</td></tr>",sep='')))
   .e$out <- c(.e$out, paste("<table ",tab,">\n",sep=''), tout, '</table>')
 }
 
-ohead <- function(..., level=3)
-  .e$out <- c(.e$out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
+ohead <- function(..., level=3, escape=TRUE) {
+  esc <- if (is.function(escape)) escape else if (isTRUE(escape)) htmlEscape else identity 
+  .e$out <- c(.e$out, paste("<h",level,">",esc(paste(...,sep='')),"</h",level,">",sep=''))
+}
 
-htmlEscape <- function(x) gsub(">","&gt;",gsub("<","&lt;",gsub("&","&amp;",x,fixed=TRUE),fixed=TRUE),fixed=TRUE)
+oprint <- function(..., sep='\n', escape=TRUE) {
+  esc <- if (is.function(escape)) escape else if (isTRUE(escape)) htmlEscape else identity 
+  .e$out <- c(.e$out, paste("<pre>",esc(paste(capture.output(print(...)),collapse=sep)),"</pre>",sep=''))
+}
 
-oprint <- function(..., sep='\n')
-  .e$out <- c(.e$out, paste("<pre>",htmlEscape(paste(capture.output(print(...)),collapse=sep)),"</pre>",sep=''))
-
-.opts <- function(..., disabled=FALSE) {
+.opts <- function(..., disabled=FALSE, escape=TRUE) {
+  esc <- if (is.function(escape)) escape else if (isTRUE(escape)) htmlEscape else identity
   l <- list(...)
   disabled <- if(isTRUE(disabled)) " disabled" else ""
   paste(
         if (length(l)) {
           n <- names(l)
           if (is.null(n) || any(n=="")) stop("Invalid unnamed argument")
-          paste(unlist(lapply(seq.int(l), function(i) paste(" ",n[i],"=\"",gsub("\"","&quot;",as.character(l[[i]])[1],fixed=TRUE),"\"",sep=''))), collapse='')
+          paste(unlist(lapply(seq.int(l), function(i) paste(" ",n[i],"=\"",gsub("\"","&quot;",esc(as.character(l[[i]])[1]),fixed=TRUE),"\"",sep=''))), collapse='')
         } else ""
         , disabled, sep='')
 }

@@ -1,5 +1,11 @@
 1.1-2	(under development)
-    o	enhance oprint() to escape special HTML characters
+    o	enhance output functions to provide an option to escape
+	special HTML characters. This (escape=TRUE)is now the default
+	for oprint(), ohead() and otable().
+
+    o	added FastRWeb:::htmlEscape(). It is currently not exported as
+	to not clash with htmltools.
+
 
 1.1-1	(2015-07-27)
     o	clear the output buffer before serving run() scripts

@@ -21,15 +21,19 @@
 }
 \usage{
 out(..., sep = "", eol = "\n")
-oprint(..., sep = "\n")
-otable(..., tab = "", tr = "", cs = "</td><td>")
-ohead(..., level = 3)
+oprint(..., sep = "\n", escape = TRUE)
+otable(..., tab = "", tr = "", cs = "</td><td>", escape = TRUE)
+ohead(..., level = 3, escape = TRUE)
 oclear(output=TRUE, headers=FALSE)
 }
 \arguments{
   \item{...}{entries to output or print}
   \item{sep}{separator string}
   \item{eol}{end of line separator}
+  \item{escape}{if \code{TRUE} special HTML characters are escaped in
+  inner text (via `FastRWeb:::htmlEscape`), if \code{FALSE} the
+  strings are passed without modification. It can also be a function
+  taking exactly one argument that is expected to perform the escaping.}
   \item{tab}{additional attributes for \code{table} HTML tag}
   \item{tr}{additional attibutes for table row (\code{tr}) HTML tag}
   \item{cs}{column separator}
@@ -51,7 +55,9 @@ oclear(output=TRUE, headers=FALSE)
   to create output in R scripts as they proceed. However, due to the
   fact that \code{print} output is generally unsuitable as HTML output,
   the output function here process the output such that the result is a
-  HTML document.
+  HTML document. Special HTML characters `<`, `>` and `&` are escaped
+  in the inner text (not in tags) if \code{escape=TRUE} in functions
+  that provide that argument.
 
   NOTE: It is important to remember that the output is collected in a
   buffer, so in order to actually create the output, do not forget to use
