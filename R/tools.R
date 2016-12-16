@@ -21,8 +21,10 @@ otable <- function(..., tab='', tr='', cs='</td><td>') {
 ohead <- function(..., level=3)
   .e$out <- c(.e$out, paste("<h",level,">",paste(...,sep=''),"</h",level,">",sep=''))
 
+htmlEscape <- function(x) gsub(">","&gt;",gsub("<","&lt;",gsub("&","&amp;",x,fixed=TRUE),fixed=TRUE),fixed=TRUE)
+
 oprint <- function(..., sep='\n')
-  .e$out <- c(.e$out, paste("<pre>",paste(capture.output(print(...)),collapse=sep),"</pre>",sep=''))
+  .e$out <- c(.e$out, paste("<pre>",htmlEscape(paste(capture.output(print(...)),collapse=sep)),"</pre>",sep=''))
 
 .opts <- function(..., disabled=FALSE) {
   l <- list(...)
