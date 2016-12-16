@@ -44,25 +44,25 @@ as.WebResult(x, \dots)
   \itemize{
     \item \code{"html"} is the default mode and it simply sends the
     result contained in \code{payload} to the browser as the body of the
-    HTML response.
+    HTTP response.
 
     \item \code{"file"} sends the content of the file with the name
     specified in \code{payload} from the \code{web} subdirectory of the
-    FastRWeb project root as the body of the HTML response.
+    FastRWeb project root as the body of the HTTP response.
 
     \item \code{"tmpfile"} sends the content of the file with the name
     specified in \code{payload} from the \code{tmp} subdirectory of the
-    FastRWeb project root as the body of the HTML response and removes
+    FastRWeb project root as the body of the HTTP response and removes
     the file once it was delivered.
 
-    \item \code{"raw"} does not generate any HTML headers but assumes
+    \item \code{"raw"} does not generate any HTTP headers but assumes
     that \code{payload} defines the entire HTTP response including
     headers. The use of this command is discouraged in favor of
     \code{"html"} with headers, since the payload must be properly
     formatted, which can be difficult.
   }
 
-  All modes except \code{"raw"} cause FastRWeb to generate HTML headers
+  All modes except \code{"raw"} cause FastRWeb to generate HTTP headers
   based on the content and any custom headers that were added using
   \code{\link{add.header}} or the \code{headers} argument. Note that
   the latter two may NOT contain \code{Content-length:} and
