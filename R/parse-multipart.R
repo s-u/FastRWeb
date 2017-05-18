@@ -17,7 +17,7 @@ parse.multipart <- function(request = .GlobalEnv$request) {
   # so this is to emulate that API
   body.pos <- 1L
   input <- list(rewind=function() body.pos <<- 1L,
-                read=function(n) { if (body.pos >= length(body)) return(raw()); v <- body[seq.int(body.pos, body.pos + n)]; body.pos <<- body.pos + n; v })
+                read=function(n) { if (body.pos >= length(body)) return(raw()); v <- body[seq.int(body.pos, body.pos + n)]; body.pos <<- body.pos + n + 1; v })
   
   ## return value
   params  <- list()
