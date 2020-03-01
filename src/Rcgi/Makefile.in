@@ -3,9 +3,13 @@
 SRC = Rcgi.cc Rconnection.cc
 OBJ = $(SRC:%.cc=%.o)
 DST = Rcgi
+CC=@CC@
+CXX=@CXX@
 
 LIBS=@LIBS@ $(PKG_LIBS)
 CPPFLAGS=-DHAVE_CONFIG_H -I. $(PKG_CPPFLAGS)
+CFLAGS=@CFLAGS@
+CXXFLAGS=@CXXFLAGS@
 
 all: $(DST)
 

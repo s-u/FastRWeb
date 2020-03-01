@@ -99,5 +99,10 @@ if test x"$ac_cv_func_connect" = x"no"; then
     fi
 fi
 
+AC_SUBST(CC)
+AC_SUBST(CXX)
+AC_SUBST(CFLAGS)
+AC_SUBST(CXXFLAGS)
+
 AC_CONFIG_FILES([src/Rcgi/Makefile])
 AC_OUTPUT
