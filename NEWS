@@ -1,4 +1,4 @@
-1.1-2	(under development)
+1.1-2	(2020-03-02)
     o	enhance output functions to provide an option to escape
 	special HTML characters. This (escape=TRUE)is now the default
 	for oprint(), ohead() and otable().
