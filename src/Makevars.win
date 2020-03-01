@@ -1,0 +1,13 @@
+INST=../inst
+CGIBIN=$(INST)/cgi-bin
+
+all:
+	@echo 'compiling Rcgi (Makevars.win) $(R_ARCH)'
+	@if test ! -e Rcgi/Makefile; then cp Rcgi/Makefile.win Rcgi/Makefile; echo ' - using Windows setup'; fi
+	@(cd Rcgi && $(MAKE) "CC=$(CC)" "CXX=$(CXX)" "CFLAGS=$(CFLAGS)" "CXXFLAGS=$(CXXFLAGS)" "CPPFLAGS=-I../include -I../include/Win32 -I.. -I. -DWin32 $(CPPFLAGS)")
+	rm -rf $(INST)/Rcgi
+	cp -r Rcgi $(INST)
+	mkdir -p $(CGIBIN)$(R_ARCH)
+	@(if test -e Rcgi/Rcgi; then cp Rcgi/Rcgi $(CGIBIN)$(R_ARCH)/; fi)
+	@(if test -e Rcgi/Rcgi.exe; then cp Rcgi/Rcgi.exe $(CGIBIN)$(R_ARCH)/; fi)
+	touch null.so null.dll null.o # to make R CMD SHLIB happy

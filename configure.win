@@ -1,5 +1,0 @@
-#!/bin/sh
-
-echo 'Using Windows configuration'
-cp src/Rcgi/Makefile.win src/Rcgi/Makefile
-
