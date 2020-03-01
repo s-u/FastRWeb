@@ -99,8 +99,10 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
   ct <- if (length(r) > 2) r[3] else "text/html"
   h <- if (length(r) > 3) r[4] else character(0)
   if (any(nchar(h) == 0L)) h <- h[nchar(h) > 0]
+  h.stat <- grep("^status:\\s*[0-9]{3}", h, ignore.case=TRUE, value=TRUE)
+  stat.c <- if (length(h.stat)) as.integer(gsub("^status:\\s*([0-9]{3}).*", "\\1", h, ignore.case=TRUE)) else 200L
   if (cmd == "tmpfile" || cmd == "file") {
     fn <- paste(root, if (cmd == "tmpfile") "tmp" else "web", gsub("/", "_", payload, fixed=TRUE), sep='/')
-    list(file=fn, ct, h)
-  } else list(payload, ct, h)
+    list(file=fn, ct, h, stat.c)
+  } else list(payload, ct, h, stat.c)
 }
