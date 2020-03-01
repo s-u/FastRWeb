@@ -18,6 +18,9 @@
 	subdirectory of cgi-bin, so pick the the desired
 	architecture and install in cgi-bin as needed.
 
+    o	in Rserve stand-alone setup pass the status code from
+	the Status: header to the client in the response (#6)
+
 
 1.1-1	(2015-07-27)
     o	clear the output buffer before serving run() scripts
