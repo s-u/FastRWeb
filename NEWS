@@ -12,6 +12,12 @@
 	tag type from "img" to "embed" for PDF and add the correct
 	mime type for type="svg".
 
+    o	clean up build system and compiler warnings, restore
+	support for Windows including multi-arch builds.
+	NOTE: Rcgi executables are now in the $(R_ARCH)
+	subdirectory of cgi-bin, so pick the the desired
+	architecture and install in cgi-bin as needed.
+
 
 1.1-1	(2015-07-27)
     o	clear the output buffer before serving run() scripts
