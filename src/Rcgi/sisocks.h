@@ -48,6 +48,8 @@
 
 #define sockerrno WSAGetLastError()
 
+/* more recent WinGW has those defined, olders don't */
+#ifndef ECONNREFUSED
 #define ECONNREFUSED WSAECONNREFUSED
 #define EADDRINUSE WSAEADDRINUSE
 #define ENOTSOCK WSAENOTSOCK
@@ -63,6 +65,7 @@
 #define EFAULT WSAEFAULT
 #define EWOULDBLOCK WSAEWOULDBLOCK
 #define EACCES WSAEACCES
+#endif
 
 #ifdef USE_SNPRINTF
 int snprintf(char *buf, int len, char *fmt, ...)
@@ -86,6 +89,8 @@ int snprintf(char *buf, int len, char *fmt, ...)
 
 #ifdef windows
 
+#ifdef NEED_INITSOCKS
+
 static int initsocks(void)
 {
   WSADATA dt;
@@ -94,11 +99,17 @@ static int initsocks(void)
 };
 
 #define donesocks() WSACleanup()
+#endif
+
 #else
  
 /* no stupid stuff necessary for unix */
 #define initsocks()
 #define donesocks()
+
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET -1
+#endif
 
 #endif
 

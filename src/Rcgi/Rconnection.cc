@@ -141,12 +141,13 @@ Rmessage::~Rmessage() {
     complete=0;
 }
     
-int Rmessage::read(int s) {
+int Rmessage::read(SOCKET s) {
     complete=0;
     int n=recv(s,(char*)&head,sizeof(head),0);
     if (n!=sizeof(head)) {
-        closesocket(s); s=-1;
-        return (n==0)?-7:-8;
+        closesocket(s);
+	s = INVALID_SOCKET;
+        return (n == 0) ? -7 : -8;
     }
     Rsize_t i=len=head.len=ptoi(head.len);        
     head.cmd=ptoi(head.cmd);
@@ -158,7 +159,8 @@ int Rmessage::read(int s) {
         while (k>0) {
             n=recv(s,(char*)sb,(k>256)?256:k,0);
             if (n<1) {
-                closesocket(s); s=-1;
+                closesocket(s);
+		s = INVALID_SOCKET;
                 return -8; // malformed packet
             }
             k-=n;
@@ -167,7 +169,8 @@ int Rmessage::read(int s) {
     if (i>0) {
         data=(char*) malloc(i);
         if (!data) {
-            closesocket(s); s=-1;
+            closesocket(s);
+	    s = INVALID_SOCKET;
             return -10; // out of memory
         }
         char *dp=data;
@@ -176,7 +179,8 @@ int Rmessage::read(int s) {
             i-=n;
         }
         if (i>0) {
-            closesocket(s); s=-1;
+            closesocket(s);
+	    s = INVALID_SOCKET;
             return -8;
         }
     }
@@ -208,7 +212,7 @@ void Rmessage::parse() {
     }
 }
 
-int Rmessage::send(int s) {
+int Rmessage::send(SOCKET s) {
     int failed=0;
     head.cmd=itop(head.cmd);
     head.len=itop(head.len);
@@ -271,7 +275,7 @@ Rexp::~Rexp() {
     }
     if (msg) {
         if (rcount>0)
-            fprintf(stderr, "WARNING! Rexp master %lx delete requested, but %d object(s) are using our memory - refusing to free, leaking...\n", (long)this, rcount);
+            fprintf(stderr, "WARNING! Rexp master %p delete requested, but %d object(s) are using our memory - refusing to free, leaking...\n", this, rcount);
         else
             delete(msg);
     }
@@ -481,15 +485,15 @@ Rconnection::Rconnection(const char *host, int port) {
     strcpy(this->host, host);
     this->port=port;
     family=(port==-1)?AF_LOCAL:AF_INET;
-    s=-1;
+    s = INVALID_SOCKET;
     auth=0;
     salt[0]='.'; salt[1]='.';
 }
     
 Rconnection::~Rconnection() {
     if (host) free(host); host=0;
-    if (s!=-1) closesocket(s);
-    s=-1;
+    if (s != INVALID_SOCKET) closesocket(s);
+    s = INVALID_SOCKET;
 }
     
 int Rconnection::connect() {
@@ -513,9 +517,9 @@ int Rconnection::connect() {
     }
     
     IDstring[32]=0;
-    int i;
+    int i = -1;
     
-    s=socket(family,SOCK_STREAM,0);
+    s = socket(family,SOCK_STREAM,0);
     if (family==AF_INET) {
 #ifdef CAN_TCP_NODELAY
         int opt=1;
@@ -528,21 +532,25 @@ int Rconnection::connect() {
         i=::connect(s,(SA*)&sau,sizeof(sau));
 #endif
     if (i==-1) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -1; // connect failed
     }
         
     int n=recv(s,IDstring,32,0);
     if (n!=32) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -2; // handshake failed (no IDstring)
     }
     if (strncmp(IDstring,myID,4)) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -3; // invalid IDstring
     }
     if (strncmp(IDstring+8,myID+8,4) || strncmp(IDstring+4,myID+4,4)>0) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -4; // protocol not supported
     }
     {
@@ -561,9 +569,9 @@ int Rconnection::connect() {
 }
 
 int Rconnection::disconnect() {
-    if (s>-1) {
+    if (s != INVALID_SOCKET) {
         closesocket(s);
-        s=-1;
+        s = INVALID_SOCKET;
     }
     return 0;
 }
@@ -573,25 +581,29 @@ int Rconnection::disconnect() {
 int Rconnection::request(Rmessage *msg, int cmd, int len, void *par) {
     struct phdr ph;
     
-    if (s==-1) return -5; // not connected
+    if (s == INVALID_SOCKET) return -5; // not connected
     memset(&ph,0,sizeof(ph));
     ph.len=itop(len);
     ph.cmd=itop(cmd);
     if (send(s,(char*)&ph,sizeof(ph),0)!=sizeof(ph)) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -9;
     }
     if (len>0 && send(s,(char*)par,len,0)!=len) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -9;
     }
     return msg->read(s);
 }
 
 int Rconnection::request(Rmessage *targetMsg, Rmessage *contents) {
-    if (s==-1) return -5; // not connected
+    if (s == INVALID_SOCKET)
+	return -5; // not connected
     if (contents->send(s)) {
-        closesocket(s); s=-1;
+        closesocket(s);
+	s = INVALID_SOCKET;
         return -9; // send error
     }
     return targetMsg->read(s);

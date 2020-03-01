@@ -87,8 +87,9 @@ const char *sock = RSERVE_SOCK;
 
 */
 
-#define MAIN         // we are the main program, we need to define this
-#define SOCK_ERRORS  // we will use verbose socket errors
+#define MAIN            // we are the main program, we need to define this
+#define SOCK_ERRORS     // we will use verbose socket errors
+#define NEED_INITSOCKS  // we use initsocks()
 
 #include "sisocks.h"
 #include "Rconnection.h"

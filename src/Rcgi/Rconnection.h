@@ -89,9 +89,9 @@ class Rmessage {
     Rsize_t length() { return complete?head.len:-1; }
     int is_complete() { return complete; }
     
-    int read(int s);
+    int read(SOCKET s);
     void parse();
-    int send(int s);    
+    int send(SOCKET s);
 };
 
 //===================================== Rexp --- basis for all SEXPs
@@ -228,7 +228,7 @@ public:
     /*Rstring(const char *str) : Rexp(XT_STR, str, strlen(str)+1) {}*/
     
     char **strings() { return cont; }
-    char *stringAt(int i) { return (i<0||i>=nel)?0:cont[i]; }
+    char *stringAt(int i) { return (i < 0 || ((unsigned int) i) >= nel) ? 0 : cont[i]; }
     char *string() { return stringAt(0); }
     unsigned int count() { return nel; }
 
@@ -238,7 +238,7 @@ public:
  private:
     void decode() {
       char *c = (char*) data;
-      int i = 0;
+      unsigned int i = 0;
       nel = 0;
       while (i < len) { if (!c[i]) nel++; i++; }
       if (nel) {
