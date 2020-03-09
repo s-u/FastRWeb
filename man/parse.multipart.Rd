@@ -12,7 +12,6 @@
 \usage{
 parse.multipart(request = .GlobalEnv$request)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{request}{Request interface object as defined by the FastRWeb
     interface. \code{parse.multipart} will use \code{c.type},
@@ -44,11 +43,6 @@ parse.multipart(request = .GlobalEnv$request)
   debugging, it may be usedful to convert then to errors via
   \code{options(warn=2)} so they will be visigle on the client side.
 }
-%%  ~~further notes~~
-%}
 %\examples{
 %}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{utilities}
