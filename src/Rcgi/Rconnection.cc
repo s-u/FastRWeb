@@ -51,6 +51,10 @@
 #define AF_LOCAL AF_UNIX
 #endif
 
+#ifdef HAVE_CRYPT_H
+#include <crypt.h>
+#endif
+
 // NOTE: 0103 compatibility has not been established! use at your own risk!
 static const char *myID= "Rsrv0103QAP1"; /* this client supports up to protocol version 0103 */
 
@@ -766,7 +770,7 @@ int Rconnection::login(const char *user, const char *pwd) {
   strcpy(authbuf, user); c=authbuf+strlen(user);
   *c='\n'; c++;
   strcpy(c,pwd);
-#ifdef unix
+#ifdef HAS_CRYPT
   if (auth&A_crypt)
     strcpy(c,crypt(pwd,salt));
 #else
