@@ -4,6 +4,8 @@
 	include <crypt.h> on systems that have it and thus possibly
 	require it in addition so standard headers (like Solaris)
 
+    o	use C++ complier in configure tests
+
 
 1.1-3	(2020-03-10)
     o	use AC_LANG_SOURCE() in configure to avoid warnings
