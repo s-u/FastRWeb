@@ -1,7 +1,8 @@
-1.2-0
+1.2-0	(2021-11-03)
     o	add support for request headers (#11)
 	They are passed as named character vectors in `request$headers`
-	where the names as all lower-case.
+	where the names as all lower-case. If not present they may be
+	`NULL` or `charcter()` so use `length()` to check presence.
 
 	For CGI back-end this is done by parsing the `HTTP_xxx` env vars
 	and assigning then to the global environment.
@@ -12,7 +13,7 @@
 	cookies so there is no significant penalty.
 
 
-1.1-4
+1.1-4	(2020-03-11)
     o	minor fixes only affecting rare systems:
 	- use crypt() where available, do not assume unix is sufficient
 	- include <crypt.h> on systems that have it and thus possibly
