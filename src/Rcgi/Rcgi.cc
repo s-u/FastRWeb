@@ -94,6 +94,7 @@ const char *sock = RSERVE_SOCK;
 #include "sisocks.h"
 #include "Rconnection.h"
 #include <sys/time.h>
+#include <string.h>
 
 #ifdef WIN32 // on Windows we have to turn stdout into binary mode
 #include <io.h>
@@ -153,6 +154,12 @@ static char *sanitize(const char *src) {
     *d = 0;
     return dst;
 }
+
+/* for HTTP_... header env vars */
+extern "C" char **environ;
+
+/* leave room for length entry (4 bytes) */
+static char headers_buf[65536], *headers_pos = headers_buf + 4, *headers_end = headers_buf + sizeof(headers_buf);
 
 int main(int argc, char **argv) {
     gettimeofday(&startT, 0);
@@ -221,6 +228,33 @@ int main(int argc, char **argv) {
       *d = 0;
     }
 
+#ifndef NO_HTTP_HEADERS
+    /* Process all HTTP_... entries into headers */
+    if (environ) {
+	char **env = environ;
+	while (*env) {
+	    const char *h = *env;
+	    int len = strlen(h);
+	    if (len >= 7 && !strncmp(h, "HTTP_", 5) && headers_pos + len < headers_end) {
+		h += 5; /* skip HTTP_ */
+		while (*h && *h != '=') {
+		    /* copy header name + tolower */
+		    *(headers_pos++) = (*h >= 'A' && *h <= 'Z') ? (*h + 0x20) : *h;
+		    h++;
+		}
+		*(headers_pos++) = ':';
+		if (*h == '=') {
+		    h++;
+		    while (*h)
+			*(headers_pos++) = *(h++);
+		}
+		*(headers_pos++) = '\n';
+	    }
+	    env++;
+	}
+    }
+#endif
+    
     char *pii = strdup(pi); /* sanitize path: replace .. by _. */
     { char *c=pii; while (*c) { if (c[0]=='.' && c[1]=='.') *c='_'; c++;  } }
 
@@ -255,10 +289,18 @@ int main(int argc, char **argv) {
 	delete r_body;
     }
 
+    if (headers_pos > headers_buf + 4) {
+	int dp = itop(headers_pos - headers_buf - 4);
+	memcpy(headers_buf, &dp, sizeof(int));	
+	Rexp *r_hdr = new Rexp(XT_RAW, headers_buf, headers_pos - headers_buf);
+	rc->assign("request.headers", r_hdr);
+	delete r_hdr;
+    }
+    
     /* create R code to evaluate */
     snprintf(sfb, sizeof(sfb),
 	     "{library(FastRWeb);"					\
-	     "request<-list(uri='%s', method='%s', c.type='%s', c.length=%d, body=.GlobalEnv$request.body, client.ip='%s', query.string='%s', raw.cookies='%s'); FastRWeb:::.run(request,'%s','%s')}",
+	     "request<-list(uri='%s', method='%s', c.type='%s', c.length=%d, body=.GlobalEnv$request.body, client.ip='%s', query.string='%s', raw.cookies='%s', headers=.GlobalEnv$request.headers); FastRWeb:::.run(request,'%s','%s')}",
 	     srqs, method, rctype, rclen, client_ip, sqs, scook, root, pii);
 
 	/* Note: for efficientcy we don't parse cookies. Use getCookies() to populate cookies. */

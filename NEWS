@@ -1,3 +1,17 @@
+1.2-0
+    o	add support for request headers (#11)
+	They are passed as named character vectors in `request$headers`
+	where the names as all lower-case.
+
+	For CGI back-end this is done by parsing the `HTTP_xxx` env vars
+	and assigning then to the global environment.
+        Note that this incurs a slight performance penalty, so it can be
+	diabled by adding `-DNO_HTTP_HEADERS` to `CPPFLAGS`.
+
+	For Rserve/httpd back-end the headers are already parsed for
+	cookies so there is no significant penalty.
+
+
 1.1-4
     o	minor fixes only affecting rare systems:
 	- use crypt() where available, do not assume unix is sufficient

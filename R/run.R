@@ -1,3 +1,15 @@
+.parse.headers <- function(headers) {
+  if (is.raw(headers)) headers <- rawToChar(headers)
+  if (is.character(headers)) {
+    ## parse the headers into key/value pairs, collapsing multi-line values
+    h.lines <- unlist(strsplit(gsub("[\r\n]+[ \t]+"," ", headers), "[\r\n]+"))
+    h.keys <- tolower(gsub(":.*", "", h.lines))
+    h.vals <- gsub("^[^:]*:[[:space:]]*", "", h.lines)
+    names(h.vals) <- h.keys
+    h.vals[grep("^[^:]+:", h.lines)]
+  } else character()
+}
+
 .run <- function(request, root, path) {
   as.character(try({
     .GlobalEnv$webapi <- 1.1
@@ -29,6 +41,9 @@
       for (i in seq.int(qs)) pars[[qn[i]]] <- qs[i]
     }
   
+    # convert headers (we send them as raw vector)
+    request$headers <- .parse.headers(request$headers)
+
     # find the script
     request$path.info <- ''
     sfn <- sprintf("%s/web.R/%s.R", root, path)
@@ -65,14 +80,10 @@ URLenc <- function(x) unlist(lapply(x, URLencode))
   ## process headers to pull out request method (if supplied) and cookies
   if (is.raw(headers)) headers <- rawToChar(headers)
   if (is.character(headers)) {
-    ## parse the headers into key/value pairs, collapsing multi-line values
-    h.lines <- unlist(strsplit(gsub("[\r\n]+[ \t]+"," ", headers), "[\r\n]+"))
-    h.keys <- tolower(gsub(":.*", "", h.lines))
-    h.vals <- gsub("^[^:]*:[[:space:]]*", "", h.lines)
-    names(h.vals) <- h.keys
-    h.vals <- h.vals[grep("^[^:]+:", h.lines)]
+    h.vals <- .parse.headers(headers)
     h.keys <- names(h.vals)
 
+    request$headers <- h.vals
     if ("request-method" %in% h.keys) request$method <- c(h.vals["request-method"])
     if ("client-addr" %in% h.keys) request$client.ip <- c(h.vals["client-addr"])
     if ("cookie" %in% names(h.vals)) request$raw.cookies <- paste(h.vals[h.keys == "cookie"], collapse=" ")
