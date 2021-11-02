@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([FastRWeb],[0.1],[Simon.Urbanek@r-project.org])
 AC_CONFIG_SRCDIR([src/Rcgi/Rcgi.cc])
-AC_CONFIG_HEADER([src/Rcgi/config.h])
+AC_CONFIG_HEADERS([src/Rcgi/config.h])
 
 # find R home and set CC/CFLAGS
 : ${R_HOME=`R RHOME`}
@@ -28,7 +28,6 @@ AC_LANG(C++)
 # Checks for libraries.
 
 # Checks for header files.
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([string.h memory.h sys/time.h unistd.h])
 AC_CHECK_HEADERS([sys/stat.h sys/types.h sys/socket.h sys/un.h netinet/in.h netinet/tcp.h])
@@ -52,7 +51,6 @@ AC_MSG_ERROR([Cannot determine endianness neither from the compiler nor using a 
 Try adding -D_BIG_ENDIAN_ or -D_LITTLE_ENDIAN_ to PKG_CPPFLAGS.
 ])])
 ])
-AC_HEADER_TIME
 
 # Checks for library functions.
 AC_CHECK_FUNCS([memset mkdir rmdir select socket])
