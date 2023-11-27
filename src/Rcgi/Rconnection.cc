@@ -279,7 +279,7 @@ Rexp::~Rexp() {
     }
     if (msg) {
         if (rcount>0)
-            fprintf(stderr, "WARNING! Rexp master %p delete requested, but %d object(s) are using our memory - refusing to free, leaking...\n", this, rcount);
+            fprintf(stderr, "WARNING! Rexp master %p delete requested, but %d object(s) are using our memory - refusing to free, leaking...\n", (void*) this, (int) rcount);
         else
             delete(msg);
     }
@@ -495,11 +495,12 @@ Rconnection::Rconnection(const char *host, int port) {
 }
     
 Rconnection::~Rconnection() {
-    if (host) free(host); host=0;
+    if (host) free(host);
+    host = 0;
     if (s != INVALID_SOCKET) closesocket(s);
     s = INVALID_SOCKET;
 }
-    
+
 int Rconnection::connect() {
 #ifdef unix
     struct sockaddr_un sau;
