@@ -1,3 +1,7 @@
+1.2-1	(2023-11-28)
+    o	Silence benign compiler warnings
+
+
 1.2-0	(2021-11-03)
     o	add support for request headers (#11)
 	They are passed as named character vectors in `request$headers`
