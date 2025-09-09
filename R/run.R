@@ -58,10 +58,18 @@
 
     oclear(TRUE, TRUE)
     .GlobalEnv$request <- request
-    if(exists('init') && is.function(init)) init()
+    if (exists('init')) {
+       init <- get('init')
+       if (is.function(init)) init()
+    }
 
     source(sfn, local=TRUE)
-    as.WebResult(do.call(run, pars))
+    if (!exists('run', inherits=FALSE))
+      as.WebResult("Error: script does not contain a run() function")
+    else {
+      run <- get('run', inherits=FALSE)
+      as.WebResult(do.call(run, pars))
+    }
   }, silent=TRUE))
 }
 
