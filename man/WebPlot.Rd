@@ -15,12 +15,12 @@ WebPlot(width = 640, height = 480, type = "png", ...)
   \item{width}{width of the resulting plot (normally in pixels)}
   \item{height}{height of the resulting plot (normally in pixels)}
   \item{type}{type of the output}
-  \item{\dots}{furhter arguments to be passed to \code{\link{Cairo}}}
+  \item{\dots}{further arguments to be passed to \code{\link[Cairo]{Cairo}}}
 }
 \details{
   \code{WebPlot} generates a temporary file name that is accessible using
   the \code{"tmpfile"} command of \code{\link{WebResult}} and opens a
-  new \code{\link{Cairo}} device with the specified parameteres. It
+  new \code{\link[Cairo]{Cairo}} device with the specified parameteres. It
   returns a \code{WebPlot} object that can be either retured directly
   from the \code{run()} function (and thus resulting in one image) or
   used with the \code{\link{out}()} function to reference the image in
@@ -57,7 +57,7 @@ Simon Urbanek
 ## it can be served as http://server/cgi-bin/R/plot.png
 run <- function(n = 100, ...) {
   n <- as.integer(n)
-  # create the WebPlto device
+  # create the WebPlot device
   p <- WebPlot(800, 600)
   # plot ...
   plot(rnorm(n), rnorm(n), pch=19, col="#ff000080")
